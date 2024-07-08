@@ -1,0 +1,73 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(33 37 41 / 49%) !important;
+    backdrop-filter: blur(12px);
+}
+
+.header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #333;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: rgb(33 37 41 / 49%) !important;
+    backdrop-filter: blur(12px);
+    margin-top: 50px;
+}
+
+.account-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.account-details li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.value {
+    color: #333;
+}
+
+/* Add additional styles as needed */

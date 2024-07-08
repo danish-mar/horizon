@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Details</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/main.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+{% include 'components/header.html' %}
+
+<main class="container">
+  <h1>Your Account Details</h1>
+  <ul class="account-details">
+    <li>
+      <span class="label">Owner Name:</span>
+      <span class="value">{{ account_name }}</span>
+    </li>
+    <li>
+      <span class="label">Account Number:</span>
+      <span class="value">{{ account_number }}</span>
+    </li>
+    <li>
+      <span class="label">Balance:</span>
+      <span class="value">{{ account_balance }}</span>
+    </li>
+  </ul>
+</main>
+
+{% include 'components/footer.html' %}
+</body>
+</html>

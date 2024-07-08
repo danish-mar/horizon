@@ -1,0 +1,63 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.navbar-brand {
+    color: #ff69b4 !important;
+}
+
+.nav-link {
+    color: #ff69b4 !important;
+}
+
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.hero-section .btn-pink {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+    color: #fff;
+}
+
+.btn-pink {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+    color: #fff;
+}
+
+.hero-section .btn-pink:hover {
+    background-color: #ff85c4;
+    border-color: #ff85c4;
+}
+
+.btn-pink:hover {
+    background-color: #ff85c4;
+    border-color: #ff85c4;
+}
+
+.features-section {
+    background-color: #222;
+}
+
+.feature-box {
+    border: 1px solid #333;
+}
+
+.feature-box h3 {
+    color: #ff69b4;
+}
+
+.footer {
+    background-color: #111;
+}
+
+.footer a {
+    color: #ff69b4 !important;
+}
+
+.footer a:hover {
+    color: #ff85c4 !important;
+}

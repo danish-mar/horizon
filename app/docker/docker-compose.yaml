@@ -1,0 +1,16 @@
+version: '3.8'
+
+
+services:
+  nebulal:
+    image: mysql:latest
+    container_name: nebula_server
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: equinoxStartup
+      MYSQL_DATABASE: nebula_db
+      MYSQL_USER: star_fire
+      MYSQL_PASSWORD: starfire@321
+    volumes:
+      - /docker/equinox/horizon/database:/var/lib/mysql
