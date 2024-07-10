@@ -1,33 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account Details</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/main.css') }}">
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/account_view.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/anim.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/logo/removed_x.png') }}" type="image/x-icon">
+
+
 </head>
+
+<style>
+body{
+}
+</style>
+
 <body>
-{% include 'components/header.html' %}
+<div class="wrapper">
+    {% include 'components/header.html' %}
 
-<main class="container">
-  <h1>Your Account Details</h1>
-  <ul class="account-details">
-    <li>
-      <span class="label">Owner Name:</span>
-      <span class="value">{{ account_name }}</span>
-    </li>
-    <li>
-      <span class="label">Account Number:</span>
-      <span class="value">{{ account_number }}</span>
-    </li>
-    <li>
-      <span class="label">Balance:</span>
-      <span class="value">{{ account_balance }}</span>
-    </li>
-  </ul>
-</main>
+    <main class="container mt-5">
+        <div class="card shadow-lg rounded-lg border-0">
+            <div class="card-header bg-dark text-light">
+                <h1 class="mb-0">Welcome, {{ last_name }}</h1>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark text-light border-0">
+                        <span class="font-weight-bold">Account Number:</span>
+                        <span class="float-right">{{ account_number }}</span>
+                    </li>
+                    <li class="list-group-item bg-dark text-light border-0">
+                        <span class="font-weight-bold">Balance:</span>
+                        <span class="float-right"> {{ account_balance }}</span>
+                        <span class="float-right"> $ </span>
+                    </li>
 
-{% include 'components/footer.html' %}
+                    <li class="list-group-item bg-dark text-light border-0">
+                        <span class="font-weight-bold">Account Type:</span>
+                        <span class="float-right">{{ account_type }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card shadow-lg rounded-lg border-0" style="margin-top: 25px">
+            <div class="card-header bg-dark text-light">
+                <h3 class="mb-0">Recent Transactions</h3>
+            </div>
+            <div class="card-body">
+
+            </div>
+        </div>
+
+    </main>
+
+</div> <!-- /.wrapper -->
+
+<footer>
+    {% include 'components/footer.html' %}
+</footer>
+
+<!-- Bootstrap JS, FontAwesome JS, and Custom Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='javascript/applyFadeIn.js') }}"></script>
 </body>
 </html>

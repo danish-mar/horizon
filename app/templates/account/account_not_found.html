@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Account Not Found</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #1c1c1c;
+            color: #fff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .error-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .error-content {
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #292929;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+        }
+        .error-heading {
+            font-size: 48px;
+            color: #f0c9c9; /* Pink accent */
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        .error-icon {
+            font-size: 100px;
+            color: #f0c9c9;
+            margin-bottom: 20px;
+        }
+        .error-link {
+            color: #f0c9c9;
+            text-decoration: none;
+            transition: all 0.3s ease-in-out;
+        }
+        .error-link:hover {
+            color: #f0c9c9;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1 class="error-heading">404</h1>
+        <p class="error-message">Oops! Account not found.</p>
+        <p><a href="/" class="error-link">Go back to Home</a></p>
+    </div>
+</div>
+
+<!-- Bootstrap JS, Fontawesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

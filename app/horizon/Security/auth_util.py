@@ -16,3 +16,9 @@ def generate_auth_key(length=32):
     # Encode the random bytes to base64 string for easier storage and usage
     auth_key = base64.urlsafe_b64encode(random_bytes).decode('utf-8')
     return auth_key
+
+
+
+
+
+

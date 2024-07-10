@@ -6,6 +6,10 @@
     <title>Equinox Banking</title>
     {% include 'components/fa_bs.html' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style_main.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/logo/removed_x.png') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/anim.css') }}">
+
+
     <style>
         body {
             color: #fff;
@@ -63,9 +67,9 @@
 <!-- Hero Section -->
 <header class="hero-section text-center text-light d-flex align-items-center justify-content-center">
     <div class="container">
-        <h1 class="display-4">Welcome to Equinox Banking</h1>
+        <h1 class="display-4">Welcome to Equinox</h1>
         <p class="lead">Your trusted partner in financial success.</p>
-        <a href="#" class="btn btn-pink mt-3">Get Started</a>
+        <a href="/account/create" class="btn btn-pink mt-3">Get Started</a>
     </div>
     <div class="gradient"></div>
 </header>
@@ -93,7 +97,7 @@
                     <i class="fas fa-mobile-alt fa-3x text-pink mb-3"></i>
                     <h3 class="h5">Mobile Banking</h3>
                     <p>Bank on the go with our mobile app.</p>
-                    <a href="/npi"" class="btn btn-pink mt-3">Coming Soon</a>
+                    <a href="/npi" class="btn btn-pink mt-3">Coming Soon</a>
                 </div>
             </div>
         </div>
@@ -105,4 +109,6 @@
 {% include 'components/bootstrap.html' %}
 
 </body>
+<script src="{{ url_for('static', filename='javascript/isAuthenticated.js') }}"></script>
+
 </html>

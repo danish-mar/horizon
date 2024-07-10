@@ -61,3 +61,12 @@ body {
 .footer a:hover {
     color: #ff85c4 !important;
 }
+
+
+.bg-dark{
+    background-color: rgb(0 0 0) !important;
+}
+
+body{
+    background-color: black;
+}

@@ -1,0 +1,19 @@
+body {
+    animation: fadeInUp ease 1s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+@keyframes fadeInUp {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+.fadeInUp-animation {
+    animation: 1.5s fadeInUp;
+}

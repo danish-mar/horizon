@@ -1,0 +1,62 @@
+body {
+    background-color: #000000;
+    color: #fff;
+    margin-bottom: 56px; /* Adjusted margin for footer navbar */
+}
+
+.wrapper {
+    min-height: 100vh; /* Ensures wrapper extends to at least full viewport height */
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    background-color: #000000;
+    border-color: #f0c9c9; /* Pink border color */
+}
+
+.card-body{
+    background-color: black;
+    -moz-border-radius-bottomleft: 40%;
+    -moz-border-radius-bottomright: 40%;
+    border-radius: 50px;
+    filter: drop-shadow(0px 5px 1px #edc0ff);
+}
+
+.card-header:first-child {
+    border-radius: 26px;
+}
+
+.card-header,
+.card-footer {
+    background-color: #000000; /* Darker background for header and footer */
+    border-color: #e88aef; /* Pink border color */
+    color: #fff; /* White text color */
+}
+
+.card-header h1 {
+    color: #eeaefd; /* Pink header text color */
+}
+
+.list-group-item {
+    background-color: #000000; /* Darker background for list items */
+    border-color: #444; /* Dark border color */
+    color: #fff; /* White text color */
+}
+
+.list-group-item span.font-weight-bold {
+    color: #f0c9c9; /* Pink label color */
+}
+
+.list-group-item span.float-right {
+    color: #fff; /* White value text color */
+}
+
+.bg-dark {
+    background-color: #000000 !important;
+}
+.navbar.fixed-bottom {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
