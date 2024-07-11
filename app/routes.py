@@ -216,46 +216,58 @@ def auth():
         if not username or not password:
             return jsonify({'success': False, 'message': 'Username and password are required'}), 400
 
-        db = get_db()
-        cursor = db.cursor(dictionary=True)
-        cursor.execute('SELECT * FROM User WHERE username = %s', (username,))
-        user = cursor.fetchone()
+        try:
+            db = get_db()
+            cursor = db.cursor(dictionary=True)
+            cursor.execute('SELECT * FROM User WHERE username = %s', (username,))
+            user = cursor.fetchone()
 
-        if user:
-            print(f"Retrieved user: {user}")
-            password_hash = user.get('password_hash')
-            print(f"Password hash from database: {password_hash}")
 
-            if password_hash and confirm_password_hash(password_hash, password):
-                auth_key = generate_auth_key()
-                expiry_timestamp = datetime.now() + timedelta(minutes=30)
-                cursor.execute(
-                    'INSERT INTO Auth_Key (auth_key, user_id, expiry_timestamp) VALUES (%s, %s, %s)',
-                    (auth_key, user['user_id'], expiry_timestamp)
-                )
-                db.commit()
+            if user:
+                print(f"Retrieved user: {user}")
+                password_hash = user.get('password_hash')
+                print(f"Password hash from database: {password_hash}")
 
-                response_data = {
-                    'success': True,
-                    'message': 'Login successful'
-                }
-                response = jsonify(response_data)
-                response.headers['X-Auth-Token'] = auth_key
-                print(response)
-                return response, 200
+                if password_hash and confirm_password_hash(password_hash, password):
+                    auth_key = generate_auth_key()
+                    expiry_timestamp = datetime.now() + timedelta(minutes=30)
+                    cursor.execute(
+                        'INSERT INTO Auth_Key (auth_key, user_id, expiry_timestamp) VALUES (%s, %s, %s)',
+                        (auth_key, user['user_id'], expiry_timestamp)
+                    )
+                    db.commit()
+
+                    response_data = {
+                        'success': True,
+                        'message': 'Login successful'
+                    }
+                    response = jsonify(response_data)
+                    response.headers['X-Auth-Token'] = auth_key
+                    print(response)
+                    return response, 200
+                else:
+                    response_data = {
+                        'success': False,
+                        'message': 'Invalid username or password'
+                    }
+                    print(response_data)
+                return jsonify(response_data), 401
             else:
                 response_data = {
                     'success': False,
                     'message': 'Invalid username or password'
                 }
-                print(response_data)
-            return jsonify(response_data), 401
-        else:
+                return jsonify(response_data), 401
+        except mysql.connector.errors.DatabaseError:
+            print("[!] Database Servers are down!")
             response_data = {
                 'success': False,
-                'message': 'Invalid username or password'
+                'server_response_code': 503,
+                "message": "We're sorry for the inconvenience 😢\nOur servers are currently being maintained 🛠️\nPlease try again later! 💖"
             }
-            return jsonify(response_data), 401
+            print(response_data)
+            return jsonify(response_data), 405
+
 
 @main.route('/auth/logout', methods=['GET', 'POST'])
 def logout():

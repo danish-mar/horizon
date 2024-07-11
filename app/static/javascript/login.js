@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData(loginForm);
             const username = formData.get('username');
             const password = formData.get('password');
+            let errorAlert = document.getElementById('error-login-message');
+            let successAlert = document.getElementById('ok-login-message')
 
+            resetMessage()
+            successAlert.innerText = "Logging in..."
             fetch('/auth/login', {
                 method: 'POST',
                 headers: {
@@ -27,19 +31,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
             })
                 .then(response => {
-                    if (!response.ok) {
-                        resetMessage()
-                        document.getElementById('error-login-message').innerText = ' Login Failed ';
-                    }
-                    return response;
-                })
-                .then(response => {
                     // Get the X-Auth-Token cookie from the response headers
                     const authToken = response.headers.get('X-Auth-Token');
                     if (authToken) {
                         // Set the cookie with the received auth token
                         resetMessage();
-                        document.getElementById('ok-login-message').innerText = ' Welcome back, Redirecting...'
+                        successAlert = ' Welcome back, Redirecting...'
                         document.cookie = `X-Auth-Token=${authToken}; Secure; SameSite=Strict; path=/`;
 
                     }
@@ -51,10 +48,21 @@ document.addEventListener('DOMContentLoaded', function () {
                         window.location.href = "/account";
 
                     } else {
+
+                        if (!data.success){
+                            console.log(data.message)
+
+                            if(data.server_response_code === 503){
+                                alert(data.message)
+                                resetMessage()
+                                errorAlert.innerText = "Server under Maintenance \n Please try again later~";
+                                errorAlert.style.display = 'block';
+                            }else{
+                                errorAlert.innerText = data.message;
+                                errorAlert.style.display = 'block';
+                            }
+                        }
                         // Failed login, show error message
-                        const errorAlert = document.getElementById('errorAlert');
-                        errorAlert.innerText = data.message;
-                        errorAlert.style.display = 'block';
                     }
                 })
                 .catch(error => {
