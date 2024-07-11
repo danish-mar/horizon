@@ -191,12 +191,12 @@ def get_transactions():
 
 
 
-@main.route('/transaction/init',methods=['POST'])
+@main.route('/transaction/new',methods=['POST','GET'])
 def init_transaction():
 
     # first lets get the details of the transaction:
     if request.method == 'GET':
-        return render_template("")
+        return render_template("account/new_transaction.html")
 
 
 

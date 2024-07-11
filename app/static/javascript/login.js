@@ -18,8 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let errorAlert = document.getElementById('error-login-message');
             let successAlert = document.getElementById('ok-login-message')
 
-            resetMessage()
-            successAlert.innerText = "Logging in..."
+
             fetch('/auth/login', {
                 method: 'POST',
                 headers: {
@@ -29,20 +28,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     username: username,
                     password: password
                 })
+
             })
                 .then(response => {
+                    resetMessage()
+                    successAlert.innerText = "Logging in... "
                     // Get the X-Auth-Token cookie from the response headers
                     const authToken = response.headers.get('X-Auth-Token');
                     if (authToken) {
                         // Set the cookie with the received auth token
-                        resetMessage();
-                        successAlert = ' Welcome back, Redirecting...'
                         document.cookie = `X-Auth-Token=${authToken}; Secure; SameSite=Strict; path=/`;
 
                     }
                     return response.json();
                 })
                 .then(data => {
+                    resetMessage()
+                    successAlert = ' Welcome back, Redirecting...'
                     if (data.success) {
                         // Successful login, redirect to /account
                         window.location.href = "/account";
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 errorAlert.innerText = "Server under Maintenance \n Please try again later~";
                                 errorAlert.style.display = 'block';
                             }else{
+                                resetMessage()
                                 errorAlert.innerText = data.message;
                                 errorAlert.style.display = 'block';
                             }

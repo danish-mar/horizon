@@ -2,11 +2,256 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Transaction</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-pw4gFLF19E7zijSrxzHQbNn3VbCXUcQhV7eJUOt5N7vP/f5RM+ZMzPvso2D6CJpgzN+STL8H3U2ZP8/Y8I6FDg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom CSS -->
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            {#background: linear-gradient(to bottom right, #330033, #660066, #990099, #cc33cc, #ff66ff);#}
+            background-color: black;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: #fff; /* Ensure light text color for readability */
+            font-family: Roboto, sans-serif; /* Maintain your chosen font */
+        }
+
+        .container {
+            margin-top: 50px;
+            padding: 20px;
+        }
+
+        /* Add this CSS for backlit RGB effect using drop shadow */
+        @keyframes rgb-shadow {
+            0% {
+                box-shadow: 0 0 10px red;
+            }
+            33% {
+                box-shadow : 0 0 10px green;
+            }
+            66% {
+                box-shadow: 0 0 10px blue;
+            }
+            100% {
+                box-shadow: 0 0 10px red;
+            }
+        }
+
+        .rgb-effect {
+            animation: rgb-shadow 2s infinite;
+        }
+
+        .purple-shadow{
+            box-shadow: 9px 9px 20px 0px #d300ff;
+        }
+
+        @keyframes purple-shadow-blip-animation {
+            0%{
+                box-shadow: 9px 9px 20px 0px #d300ff;
+            }
+            50%{
+                box-shadow: 9px 9px 20px 0px rgba(211, 0, 255, 0.09);
+            }
+            100%{
+                box-shadow: 9px 9px 20px 0px #d300ff;
+            }
+        }
+
+        .purple-shadow-blip{
+            animation: purple-shadow-blip-animation 500ms ease-in-out;
+        }
+
+        .card {
+            color: #fff;
+            background-color: #333;
+            border: none;
+            display: none;
+        }
+
+        .transaction-steps{
+            align-content: center;
+            height: 500px;
+            width: 100%;
+            border-radius: 50px;
+            padding: 40px;
+            border-color: #f0f;
+            margin-bottom: 20px;
+            background-color: #333;
+        }
+
+        .card.active {
+            display: block;
+        }
+        .btn-pink {
+            background-color: #ff69b4;
+            border-color: #ff69b4;
+        }
+        .btn-pink:hover {
+            background-color: #ff1493;
+            border-color: #ff1493;
+        }
+        @keyframes slide-right {
+            from {
+                transform: translateX(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0px);
+                opacity: 1;
+            }
+        }
+        @keyframes slide-left {
+            from {
+                transform: translateX(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0px);
+                opacity: 1;
+            }
+        }
+        .slide-right {
+            animation: slide-left 700ms forwards;
+        }
+        .slide-left {
+            animation: slide-right 700ms forwards;
+        }
+        @media (min-width: 768px) {
+            .form-container {
+                text-align: left;
+            }
+        }
+        @media (max-width: 767px) {
+            .form-container {
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
+<!-- Header Include -->
+{% include 'components/header.html' %}
 
+<div class="container form-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">New Transaction</h2>
+            <div id="transaction-steps" class="transaction-steps purple-shadow">
+                <!-- Step 1: Sender Account ID -->
+                <div class="card active">
+                    <div class="card-body">
+                        <h5 class="card-title">Step 1: Enter Sender Account ID</h5>
+                        <div class="form-group">
+                            <label for="senderAccount" class="form-label">Sender Account ID</label>
+                            <input type="text" class="form-control" id="senderAccount" name="senderAccount" required>
+                        </div>
+                        <button class="btn btn-pink next-step mt-3"><i class="fas fa-arrow-right"></i> </button>
+                    </div>
+                </div>
 
+                <!-- Step 2: Receiver Account ID -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Step 2: Enter Receiver Account ID</h5>
+                        <div class="form-group">
+                            <label for="receiverAccount" class="form-label">Receiver Account ID</label>
+                            <input type="text" class="form-control" id="receiverAccount" name="receiverAccount" required>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-pink prev-step"><i class="fas fa-arrow-left"></i> Previous</button>
+                            <button class="btn btn-pink next-step"><i class="fas fa-arrow-right"></i> Next</button>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Step 3: Amount -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Step 3: Enter Amount</h5>
+                        <div class="form-group">
+                            <label for="amount" class="form-label">Amount</label>
+                            <input type="text" class="form-control" id="amount" name="amount" required>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-pink prev-step"><i class="fas fa-arrow-left"></i> Previous</button>
+                            <button class="btn btn-pink next-step"><i class="fas fa-arrow-right"></i> Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Description -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Step 4: Enter Description</h5>
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-pink prev-step"><i class="fas fa-arrow-left"></i> Previous</button>
+                            <button type="submit" class="btn btn-pink"><i class="fas fa-check"></i> Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Custom JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const steps = document.querySelectorAll('.card');
+        const transactionSteps = document.getElementById('transaction-steps');
+        let currentStep = 0;
+
+        function showStep(step, direction) {
+            transactionSteps.classList.add('purple-shadow-blip');
+            setTimeout(() => {
+                transactionSteps.classList.remove('purple-shadow-blip');
+            }, 500);
+
+            steps.forEach((card, index) => {
+                if (index === step) {
+                    card.classList.add('active');
+                    card.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');
+                } else {
+                    card.classList.remove('active', 'slide-right', 'slide-left');
+                }
+            });
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                showStep(currentStep, 'next');
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep, 'prev');
+            }
+        }
+
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', nextStep);
+        });
+
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', prevStep);
+        });
+    });
+</script>
 </body>
 </html>

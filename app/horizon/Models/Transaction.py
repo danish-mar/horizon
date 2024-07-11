@@ -1,5 +1,5 @@
 import hashlib
-
+from pprint import pprint
 
 class Transaction:
     def __init__(self, transaction_id, sender_account_id, receiver_account_id, amount, transaction_type, description, created_at, previous_hash):
@@ -16,16 +16,19 @@ class Transaction:
     @classmethod
     def from_db_result(cls, db_result):
         return cls(
-            transaction_id=db_result['transaction_id'],
-            sender_account_id=db_result['sender_account_id'],
-            receiver_account_id=db_result['receiver_account_id'],
-            amount=db_result['amount'],
-            transaction_type=db_result['transaction_type'],
-            description=db_result.get('description', ''),
-            created_at=db_result['created_at'],
-            previous_hash=db_result['previous_hash']
+            transaction_id=db_result[0],
+            sender_account_id=db_result[1],
+            receiver_account_id=db_result[2],
+            amount=db_result[3],
+            transaction_type=db_result[4],
+            description=db_result[5],
+            created_at=db_result[6],
+            previous_hash=db_result[7]
         )
 
     def calculate_hash(self):
         hash_string = f"{self.transaction_id}{self.sender_account_id}{self.receiver_account_id}{self.amount}{self.transaction_type}{self.description}{self.created_at}{self.previous_hash}"
         return hashlib.sha256(hash_string.encode()).hexdigest()
+
+    def __str__(self):
+        return pprint(vars(self))

@@ -17,8 +17,15 @@
 </head>
 
 <style>
-body{
-}
+    .btn-pink {
+        overflow: auto;
+        background-color: #ff69b4;
+        border-color: #ff69b4;
+    }
+    .btn-pink:hover {
+        background-color: #ff1493;
+        border-color: #ff1493;
+    }
 </style>
 
 <body>
@@ -51,8 +58,11 @@ body{
         </div>
 
         <div class="card shadow-lg rounded-lg border-0" style="margin-top: 25px">
-            <div class="card-header bg-dark text-light">
+            <div class="card-header bg-dark text-light d-flex align-items-center">
                 <h3 class="mb-0">Recent Transactions</h3>
+                <a href="/transaction/new" class="ml-auto"><button class="btn btn-pink ml-auto">
+                    <i class="fas fa-paper-plane"></i> Send Money
+                </button></a>
             </div>
             <div class="card-body">
 
