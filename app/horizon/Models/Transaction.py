@@ -1,28 +1,31 @@
+import hashlib
+
+
 class Transaction:
-
-    def __init__(self, transaction_id, transaction_type, amount, from_account, to_account, description):
+    def __init__(self, transaction_id, sender_account_id, receiver_account_id, amount, transaction_type, description, created_at, previous_hash):
         self.transaction_id = transaction_id
-        self.transaction_type = transaction_type
+        self.sender_account_id = sender_account_id
+        self.receiver_account_id = receiver_account_id
         self.amount = amount
-        self.from_account = from_account
-        self.to_account = to_account
+        self.transaction_type = transaction_type
         self.description = description
+        self.created_at = created_at
+        self.previous_hash = previous_hash
 
+    # Copy constructor to initialize from a database result set
+    @classmethod
+    def from_db_result(cls, db_result):
+        return cls(
+            transaction_id=db_result['transaction_id'],
+            sender_account_id=db_result['sender_account_id'],
+            receiver_account_id=db_result['receiver_account_id'],
+            amount=db_result['amount'],
+            transaction_type=db_result['transaction_type'],
+            description=db_result.get('description', ''),
+            created_at=db_result['created_at'],
+            previous_hash=db_result['previous_hash']
+        )
 
-    def get_transaction_id(self):
-        return self.transaction_id
-
-    def get_transaction_type(self):
-        return self.transaction_type
-
-    def get_amount(self):
-        return self.amount
-
-    def get_from_account(self):
-        return self.from_account
-
-    def get_to_account(self):
-        return self.to_account
-
-    def get_description(self):
-        return self.description
+    def calculate_hash(self):
+        hash_string = f"{self.transaction_id}{self.sender_account_id}{self.receiver_account_id}{self.amount}{self.transaction_type}{self.description}{self.created_at}{self.previous_hash}"
+        return hashlib.sha256(hash_string.encode()).hexdigest()

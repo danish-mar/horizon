@@ -193,7 +193,16 @@ def get_transactions():
 
 @main.route('/transaction/init',methods=['POST'])
 def init_transaction():
-    return jsonify({'error':'Unauthorized'}),401
+
+    # first lets get the details of the transaction:
+    if request.method == 'GET':
+        return render_template("")
+
+
+
+    # return jsonify({'error':'Unauthorized'}),401
+
+
 
 
 
