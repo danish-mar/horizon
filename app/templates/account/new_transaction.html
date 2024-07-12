@@ -131,6 +131,43 @@
                 text-align: center;
             }
         }
+
+        .btn-5 {
+            border: 0 solid;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0);
+            outline: 1px solid;
+            outline-color: rgba(255, 255, 255, .5);
+            outline-offset: 0px;
+            text-shadow: none;
+            transition: all 1250ms cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .btn-5:hover {
+            border: 1px solid;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, .5), 0 0 20px rgba(255, 255, 255, .2);
+            outline-color: rgba(255, 255, 255, 0);
+            outline-offset: 15px;
+            text-shadow: 1px 1px 2px #427388;
+        }
+
+
+        .loader {
+            border: 16px solid #000000;
+            border-radius: 50%;
+            border-top: 16px solid #cc00ff;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            margin: auto;
+            box-shadow: -1px -5px 20px 0px #995aa5;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -143,27 +180,29 @@
             <h2 class="text-center mb-4">New Transaction</h2>
             <div id="transaction-steps" class="transaction-steps purple-shadow">
                 <!-- Step 1: Sender Account ID -->
-                <div class="card active">
-                    <div class="card-body">
-                        <h5 class="card-title">Step 1: Enter Sender Account ID</h5>
-                        <div class="form-group">
-                            <label for="senderAccount" class="form-label">Sender Account ID</label>
-                            <input type="text" class="form-control" id="senderAccount" name="senderAccount" required>
-                        </div>
-                        <button class="btn btn-pink next-step mt-3"><i class="fas fa-arrow-right"></i> </button>
-                    </div>
-                </div>
+{#                <div class="card active">#}
+{#                    <div class="card-body">#}
+{#                        <h5 class="card-title">Enter Sender Account ID</h5>#}
+{#                        <div class="form-group">#}
+{#                            <label for="senderAccount" class="form-label">Sender Account ID</label>#}
+{#                            <input type="text" class="form-control" id="senderAccount" name="senderAccount" required>#}
+{#                        </div>#}
+{#                        <button class="btn btn-pink next-step mt-3"><i class="fas fa-arrow-right"></i> </button>#}
+{#                    </div>#}
+{#                </div>#}
 
                 <!-- Step 2: Receiver Account ID -->
-                <div class="card">
+                <div class="card active">
                     <div class="card-body">
-                        <h5 class="card-title">Step 2: Enter Receiver Account ID</h5>
+                        <h5 class="card-title">Enter Receiver Account Number</h5>
                         <div class="form-group">
                             <label for="receiverAccount" class="form-label">Receiver Account ID</label>
                             <input type="text" class="form-control" id="receiverAccount" name="receiverAccount" required>
+                            <p class="reciever_account_name" id="receiverAccountName"></p>
+
+                            <button class="btn btn-pink verify"><i class="fa-solid fa-check"></i> Verify</button>
                         </div>
                         <div class="d-flex justify-content-between mt-3">
-                            <button class="btn btn-pink prev-step"><i class="fas fa-arrow-left"></i> Previous</button>
                             <button class="btn btn-pink next-step"><i class="fas fa-arrow-right"></i> Next</button>
                         </div>
                     </div>
@@ -172,7 +211,7 @@
                 <!-- Step 3: Amount -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Step 3: Enter Amount</h5>
+                        <h5 class="card-title">Enter Amount</h5>
                         <div class="form-group">
                             <label for="amount" class="form-label">Amount</label>
                             <input type="text" class="form-control" id="amount" name="amount" required>
@@ -187,15 +226,24 @@
                 <!-- Step 4: Description -->
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Step 4: Enter Description</h5>
+                        <h5 class="card-title">Enter Description</h5>
                         <div class="form-group">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="1"></textarea>
                         </div>
                         <div class="d-flex justify-content-between mt-3">
                             <button class="btn btn-pink prev-step"><i class="fas fa-arrow-left"></i> Previous</button>
-                            <button type="submit" class="btn btn-pink"><i class="fas fa-check"></i> Submit</button>
+                            <button type="submit" class="btn btn-pink btn-5 next-step"><i class="fas fa-check"></i> Send</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Processing -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="loader mb-3"></div>
+                        <h5 class="card-title">Your Transaction is under process</h5>
+                        <p>Please wait while we process your transaction...</p>
                     </div>
                 </div>
             </div>
