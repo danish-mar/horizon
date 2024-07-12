@@ -66,6 +66,10 @@
             animation: purple-shadow-blip-animation 500ms ease-in-out;
         }
 
+        .purple-shadow-blip-inf{
+            animation: purple-shadow-blip-animation 10s ease-in-out;
+        }
+
         .card {
             color: #fff;
             background-color: #333;
@@ -166,13 +170,31 @@
             100% { transform: rotate(360deg); }
         }
 
+        .tsr{
+            color: #b14d9f;
+        }
 
+        .flip {
+            animation: flip 1s ease-in-out;
+        }
+
+        @keyframes flip {
+            0% {
+                transform: rotateY(0);
+            }
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
 
     </style>
 </head>
 <body>
 <!-- Header Include -->
 {% include 'components/header.html' %}
+<audio id="notification-sound" src="{{ url_for('static',filename='sounds/transaction_completed.wav') }}" style="display: none"></audio>
+<audio id="notification-sound-transaction-failed" src="{{ url_for('static',filename='sounds/transaction_failed.mp3') }}" style="display: none"></audio>
+
 
 <div class="container form-container">
     <div class="row justify-content-center">
@@ -233,19 +255,59 @@
                         </div>
                         <div class="d-flex justify-content-between mt-3">
                             <button class="btn btn-pink prev-step"><i class="fas fa-arrow-left"></i> Previous</button>
-                            <button type="submit" class="btn btn-pink btn-5 next-step"><i class="fas fa-check"></i> Send</button>
+                            <button class="btn btn-pink next-step"><i class="fas fa-arrow-right"></i> Next</button>
                         </div>
                     </div>
                 </div>
 
+
+
+                <!-- Step 5: Auth-->
+                <div class="card" id="password-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Enter Password</h5>
+                        <p>Please enter your password to complete the transaction.</p>
+                        <input type="password" id="password" class="form-control mb-3" required placeholder="Password">
+                        <button onclick="verifyPassword()" class="btn btn-primary btn-pink btn-5"><i class="fas fa-check"></i>Send</button>
+                    </div>
+                </div>
+
                 <!-- Step 5: Processing -->
-                <div class="card">
+                <div class="card" id="processing-card">
                     <div class="card-body text-center">
                         <div class="loader mb-3"></div>
                         <h5 class="card-title">Your Transaction is under process</h5>
                         <p>Please wait while we process your transaction...</p>
                     </div>
                 </div>
+
+
+                <!-- Step 6: Done -->
+                <div class="card" id="success-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3 tsr">
+                            <i id="tick-icon" class="fas fa-check-circle" style="color: #b14d9f; font-size: 100px"></i>
+                        </div>
+                        <h5 class="card-title">Transaction Successful</h5>
+                        <p>Your transaction has been completed successfully.</p>
+                        <button class="btn btn-pink "><i class="fa-solid fa-receipt"></i> Details</button>
+                        <button class="btn btn-pink "><i class="fa-solid fa-user"></i> Home</button>
+                    </div>
+                </div>
+
+                <!-- Step 6: Failure -->
+                <div class="card" id="failure-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3 tsr">
+                            <i id="cross-icon" class="fas fa-times-circle" style="color: #ff4d4d; font-size: 100px"></i>
+                        </div>
+                        <h5 class="card-title">Transaction Failed</h5>
+                        <p>Your transaction could not be completed.</p>
+                        <button class="btn btn-pink "><i class="fa-solid fa-user"></i> Home</button>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
@@ -257,6 +319,116 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- Custom JavaScript -->
 <script>
+    const transactionSteps = document.getElementById('transaction-steps');
+
+
+
+    function playTransactionCompletedSound() {
+        const audio = document.getElementById('notification-sound');
+        audio.play();
+    }
+
+    function playTransactionFailedSound() {
+        const audio = document.getElementById('notification-sound-transaction-failed');
+        audio.play();
+    }
+
+    function blip() {
+        transactionSteps.classList.add('purple-shadow-blip');
+        setTimeout(() => {
+            transactionSteps.classList.remove('purple-shadow-blip');
+        }, 500);
+    }
+    
+    function redblip() {
+        
+    }
+    
+    function Startprocessingblip() {
+        transactionSteps.classList.remove('purple-shadow-blip');
+
+        transactionSteps.classList.add('purple-shadow-blip-inf');
+        transactionSteps.animate()
+    }
+
+    function Stopprocessingblip() {
+
+        transactionSteps.classList.remove('purple-shadow-blip-inf');
+        transactionSteps.classList.add('purple-shadow-blip');
+
+    }
+
+    incorrect_password = true
+
+
+
+    function verifyPassword() {
+        const password = document.getElementById('password').value;
+
+        // Here you should add your password verification logic
+        if (password === "123") { // Replace "correctPassword" with the actual password logic
+            blip()
+            document.getElementById('password-card').classList.add('slide-left')
+            document.getElementById('password-card').classList.remove('active')
+            incorrect_password = false
+
+            showProcessingCard();
+
+        } else {
+            blip()
+            document.getElementById('password-card').classList.add('slide-left')
+            document.getElementById('password-card').classList.remove('active')
+            incorrect_password = true
+            showProcessingCard();
+        }
+    }
+
+    function showProcessingCard() {
+        document.getElementById('processing-card').classList.add('active','slide-in-right');
+        if(incorrect_password === true){
+            Startprocessingblip()
+            blip()
+            setTimeout(showFailureCard, 3000); // Wait for 3 seconds before showing the success card
+        }else{
+            setTimeout(showSuccessCard, 3000); // Wait for 3 seconds before showing the success card
+        }
+    }
+
+    function showSuccessCard() {
+        playTransactionCompletedSound();
+        initiateFlipAnimation();
+        document.getElementById('success-card').classList.add('active','slide-in-right');
+        document.getElementById('processing-card').classList.remove('active')
+        initiateFlipAnimation();
+        Stopprocessingblip()
+
+    }
+
+    function showFailureCard() {
+        playTransactionFailedSound();
+        initiateFlipAnimation();
+        document.getElementById('failure-card').classList.add('active','slide-in-right');
+        document.getElementById('processing-card').classList.remove('active')
+        initiateFlipAnimation();
+        Stopprocessingblip()
+    }
+
+
+    function initiateFlipAnimation() {
+        const icon = document.getElementById('tick-icon');
+        icon.classList.add('flip');
+
+        // Optionally, remove the class after the animation completes to allow re-triggering
+        setTimeout(() => {
+            icon.classList.remove('flip');
+        }, 1000); // Duration of the animation should match the CSS animation duration
+    }
+
+    // Example: Initiate the animation on page load or after some condition is met
+    document.addEventListener('DOMContentLoaded', (event) => {
+        initiateFlipAnimation();
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         const steps = document.querySelectorAll('.card');
         const transactionSteps = document.getElementById('transaction-steps');
@@ -294,12 +466,14 @@
 
         document.querySelectorAll('.next-step').forEach(button => {
             button.addEventListener('click', nextStep);
+            initiateFlipAnimation();
         });
 
         document.querySelectorAll('.prev-step').forEach(button => {
             button.addEventListener('click', prevStep);
         });
     });
+
 </script>
 </body>
 </html>
