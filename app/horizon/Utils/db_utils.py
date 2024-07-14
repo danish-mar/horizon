@@ -6,7 +6,6 @@ import datetime
 
 # Function to get user ID from auth_key
 def get_user_id_from_auth_key(auth_key):
-
     print(f"getting used id : {auth_key}")
 
     db = get_db()
@@ -35,7 +34,7 @@ def get_user_id_from_auth_key(auth_key):
 
 # Function to get account details from user ID
 def get_account_details_from_database(user_id):
-    print(f"Getting account details from the server for user id {user_id}")
+    print(f"---- Getting account details from the server for user id {user_id}")
     conn = get_db()
 
     cursor = conn.cursor()
@@ -45,7 +44,7 @@ def get_account_details_from_database(user_id):
                        (user_id,))
         result = cursor.fetchone()
 
-        print(result)
+        print(f"\n--- Fetched Details \n--{result}")
 
         if result:
             return {
@@ -65,7 +64,6 @@ def get_account_details_from_database(user_id):
 
 # Function to get user deatils but user id
 import mysql.connector
-from mysql.connector import Error
 
 
 def get_user_details_from_database_by_id(user_id):
@@ -111,6 +109,154 @@ def check_authkey_expiration(auth_key):
     except mysql.connector.Error as e:
         print(f"Error retrieving Auth Key Details: {e}")
         return False
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def get_account_id_from_account_number(account_number):
+    conn = get_db()
+    print("--- Getting account id for account : " + account_number)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT account_id FROM Account WHERE account_number = %s", (account_number,))
+        result = cursor.fetchone()
+        if result:
+            print(f"--- Account for {account_number} : {result[0]} ")
+            return result[0]
+        else:
+            return None
+
+    except mysql.connector.Error as e:
+        print(f"Failed to get account for {account_number}\nDatabase Connection Error")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def get_account_id_from_user_id(user_id):
+    conn = get_db()
+    print(f"--- Getting account for user {user_id}")
+    cursor = conn.cursor()
+
+    try:
+        result = cursor.fetchone()
+        print("--- Fetched Account ID ")
+        if result:
+            print(f"--- Account for {user_id} : {result[0]} ")
+            return result[0]
+        return None
+
+    except mysql.connector.Error as err:
+        print(err)
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def check_user_password(user_id, hashed_password):
+    print(f"--- checking password for account {user_id} with hashed password {hashed_password}")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT password_hash FROM User WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+        if result:
+            password_hash = result[0]
+            print(f"-- retrived password hash from the database {password_hash}")
+            if password_hash == hashed_password:
+                return True
+            else:
+                return False
+
+        else:
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error retrieving details {e}")
+        return False
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def get_account_from_id(account_id):
+    print(f"--- getting account from account id {account_id}")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM Account WHERE account_id = %s", (account_id,))
+        result = cursor.fetchone()
+        if result:
+            print("--- Fetched account : ")
+            print(f"--- Account for {account_id} : {result[0]} ")
+            print(result)
+            return result
+
+        else:
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error retrieving details {e}")
+        return False
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def store_transaction_in_database(transaction):
+    # connects to the database
+    print(f"-- Storing transaction in the database")
+    conn = get_db()
+    cursor = conn.cursor()
+
+
+def update_account_balance(account_number, new_balance_with_addition):
+    print(f"--- updating account balance for account number {account_number}")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        # Get the current balance
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (account_number,))
+        result = cursor.fetchone()
+
+        if result:
+            current_balance = result[0]
+            print(f"--- Current balance for account number {account_number}: {current_balance}")
+
+            # Calculate the new balance
+            new_balance = new_balance_with_addition
+
+            # Update the balance in the database
+            cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s", (new_balance, account_number))
+            conn.commit()
+
+            print(f"--- Updated balance for account number {account_number}: {new_balance}")
+            return True
+        else:
+            print(f"--- No account found with account number {account_number}")
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error updating account balance: {e}")
+        return False
+
     finally:
         cursor.close()
         conn.close()

@@ -40,7 +40,6 @@ def account_view():
 
     user_id = get_user_id_from_auth_key(auth_key)
 
-
     # if auth_key:
     #     if check_authkey_expiration(auth_key):
     #         return redirect(url_for('main.auth'))
@@ -217,7 +216,76 @@ def init_transaction():
         else:
             return redirect("/auth/login")
 
-    # return jsonify({'error':'Unauthorized'}),401
+    if request.method == "POST":
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Missing data'}), 400
+
+        # necessary details to make the transaction
+        user_id = get_user_id_from_auth_key(auth_key)
+        initiater_account_id = get_account_id_from_user_id(user_id)
+
+        # fetches the account details from the client
+
+        reciever_account_number = data.get('reciever_account')
+        amount_to_be_sent = data.get('amount')
+        description = data.get('description')
+        unencrypted_password = data.get('unencrypted_password')
+
+        transaction_data = {
+            'reciever_account': data.get('reciever_account'),
+            'amount': data.get('amount'),
+            'description': data.get('description'),
+        }
+
+        print(f"---( Got New Transaction Request ) : {transaction_data}")
+
+        # encrypts and compare the password
+
+        client_hashed_password = hash_password(unencrypted_password)
+
+        # gets the password from the database and validate it
+        if check_user_password(user_id,client_hashed_password):
+            # upon successful validation make a transaction
+            # gets the initiater's account details
+            initiater_account_details = get_account_details_from_database(user_id)
+            print(initiater_account_details)
+            # get's the account balance from the initiater's account
+            initiater_account_balance = initiater_account_details[2]
+            print(initiater_account_balance)
+            # compare the balance with the amount to be transfered
+            if initiater_account_balance < amount_to_be_sent:
+                # returns insufficient balance due to lack of balance in the account
+                return jsonify({'error': 'Insufficient balance'}), 401
+            elif initiater_account_balance > amount_to_be_sent:
+                # process the transaction
+                reciever_account_id = get_account_id_from_account_number(reciever_account_number)
+                # gets the account id and turn it into an object
+                reciever_account_object = get_account_from_id(reciever_account_id)
+                # extract account balance
+                reciever_current_account_balance = reciever_account_object[4]
+                # adds the amount to it
+                reciever_account_new_balance = reciever_current_account_balance + amount_to_be_sent
+                # updates the amount on the database server
+                update_account_balance(reciever_account_number, reciever_account_new_balance)
+                print("--- Transaction completed ")
+                # creates a new transaction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    else:
+        return jsonify({'error': 'Unauthorized'}), 401
 
 
 # Authentication related endpoints
