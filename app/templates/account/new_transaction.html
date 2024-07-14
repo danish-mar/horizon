@@ -219,7 +219,7 @@
                         <h5 class="card-title">Enter Receiver Account Number</h5>
                         <div class="form-group">
                             <label for="receiverAccount" class="form-label">Receiver Account ID</label>
-                            <input type="text" class="form-control" id="receiverAccount" name="receiverAccount" required>
+                            <input type="text" class="form-control" id="receiverAccountNumber" name="receiverAccount" required>
                             <p class="reciever_account_name" id="receiverAccountName"></p>
 
                             <button class="btn btn-pink verify"><i class="fa-solid fa-check"></i> Verify</button>
@@ -318,10 +318,174 @@
 <!-- Font Awesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- Custom JavaScript -->
+{#<script>#}
+{#    const transactionSteps = document.getElementById('transaction-steps');#}
+{##}
+{##}
+{##}
+{#    function playTransactionCompletedSound() {#}
+{#        const audio = document.getElementById('notification-sound');#}
+{#        audio.play();#}
+{#    }#}
+{##}
+{#    function playTransactionFailedSound() {#}
+{#        const audio = document.getElementById('notification-sound-transaction-failed');#}
+{#        audio.play();#}
+{#    }#}
+{##}
+{#    function blip() {#}
+{#        transactionSteps.classList.add('purple-shadow-blip');#}
+{#        setTimeout(() => {#}
+{#            transactionSteps.classList.remove('purple-shadow-blip');#}
+{#        }, 500);#}
+{#    }#}
+{#    #}
+{#    function redblip() {#}
+{#        #}
+{#    }#}
+{#    #}
+{#    function Startprocessingblip() {#}
+{#        transactionSteps.classList.remove('purple-shadow-blip');#}
+{##}
+{#        transactionSteps.classList.add('purple-shadow-blip-inf');#}
+{#        transactionSteps.animate()#}
+{#    }#}
+{##}
+{#    function Stopprocessingblip() {#}
+{##}
+{#        transactionSteps.classList.remove('purple-shadow-blip-inf');#}
+{#        transactionSteps.classList.add('purple-shadow-blip');#}
+{##}
+{#    }#}
+{##}
+{#    incorrect_password = true#}
+{##}
+{##}
+{##}
+{#    function verifyPassword() {#}
+{#        const password = document.getElementById('password').value;#}
+{##}
+{#        // Here you should add your password verification logic#}
+{#        if (password === "123") { // Replace "correctPassword" with the actual password logic#}
+{#            blip()#}
+{#            document.getElementById('password-card').classList.add('slide-left')#}
+{#            document.getElementById('password-card').classList.remove('active')#}
+{#            incorrect_password = false#}
+{##}
+{#            showProcessingCard();#}
+{##}
+{#        } else {#}
+{#            blip()#}
+{#            document.getElementById('password-card').classList.add('slide-left')#}
+{#            document.getElementById('password-card').classList.remove('active')#}
+{#            incorrect_password = true#}
+{#            showProcessingCard();#}
+{#        }#}
+{#    }#}
+{##}
+{#    function showProcessingCard() {#}
+{#        document.getElementById('processing-card').classList.add('active','slide-in-right');#}
+{#        if(incorrect_password === true){#}
+{#            Startprocessingblip()#}
+{#            blip()#}
+{#            setTimeout(showFailureCard, 3000); // Wait for 3 seconds before showing the success card#}
+{#        }else{#}
+{#            setTimeout(showSuccessCard, 3000); // Wait for 3 seconds before showing the success card#}
+{#        }#}
+{#    }#}
+{##}
+{#    function showSuccessCard() {#}
+{#        playTransactionCompletedSound();#}
+{#        initiateFlipAnimation();#}
+{#        document.getElementById('success-card').classList.add('active','slide-in-right');#}
+{#        document.getElementById('processing-card').classList.remove('active')#}
+{#        initiateFlipAnimation();#}
+{#        Stopprocessingblip()#}
+{##}
+{#    }#}
+{##}
+{#    function showFailureCard() {#}
+{#        playTransactionFailedSound();#}
+{#        initiateFlipAnimation();#}
+{#        document.getElementById('failure-card').classList.add('active','slide-in-right');#}
+{#        document.getElementById('processing-card').classList.remove('active')#}
+{#        initiateFlipAnimation();#}
+{#        Stopprocessingblip()#}
+{#    }#}
+{##}
+{##}
+{#    function initiateFlipAnimation() {#}
+{#        const icon = document.getElementById('tick-icon');#}
+{#        icon.classList.add('flip');#}
+{##}
+{#        // Optionally, remove the class after the animation completes to allow re-triggering#}
+{#        setTimeout(() => {#}
+{#            icon.classList.remove('flip');#}
+{#        }, 1000); // Duration of the animation should match the CSS animation duration#}
+{#    }#}
+{##}
+{#    // Example: Initiate the animation on page load or after some condition is met#}
+{#    document.addEventListener('DOMContentLoaded', (event) => {#}
+{#        initiateFlipAnimation();#}
+{#    });#}
+{##}
+{#    document.addEventListener('DOMContentLoaded', function () {#}
+{#        const steps = document.querySelectorAll('.card');#}
+{#        const transactionSteps = document.getElementById('transaction-steps');#}
+{#        let currentStep = 0;#}
+{##}
+{#        function showStep(step, direction) {#}
+{#            transactionSteps.classList.add('purple-shadow-blip');#}
+{#            setTimeout(() => {#}
+{#                transactionSteps.classList.remove('purple-shadow-blip');#}
+{#            }, 500);#}
+{##}
+{#            steps.forEach((card, index) => {#}
+{#                if (index === step) {#}
+{#                    card.classList.add('active');#}
+{#                    card.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');#}
+{#                } else {#}
+{#                    card.classList.remove('active', 'slide-right', 'slide-left');#}
+{#                }#}
+{#            });#}
+{#        }#}
+{##}
+{#        function nextStep() {#}
+{#            if (currentStep < steps.length - 1) {#}
+{#                currentStep++;#}
+{#                showStep(currentStep, 'next');#}
+{#            }#}
+{#        }#}
+{##}
+{#        function prevStep() {#}
+{#            if (currentStep > 0) {#}
+{#                currentStep--;#}
+{#                showStep(currentStep, 'prev');#}
+{#            }#}
+{#        }#}
+{##}
+{#        document.querySelectorAll('.next-step').forEach(button => {#}
+{#            button.addEventListener('click', nextStep);#}
+{#            initiateFlipAnimation();#}
+{#        });#}
+{##}
+{#        document.querySelectorAll('.prev-step').forEach(button => {#}
+{#            button.addEventListener('click', prevStep);#}
+{#        });#}
+{#    });#}
+{##}
+{##}
+{#    #}
+{##}
+{#</script>#}
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Custom JavaScript -->
 <script>
     const transactionSteps = document.getElementById('transaction-steps');
-
-
 
     function playTransactionCompletedSound() {
         const audio = document.getElementById('notification-sound');
@@ -339,141 +503,115 @@
             transactionSteps.classList.remove('purple-shadow-blip');
         }, 500);
     }
-    
-    function redblip() {
-        
-    }
-    
+
     function Startprocessingblip() {
         transactionSteps.classList.remove('purple-shadow-blip');
-
         transactionSteps.classList.add('purple-shadow-blip-inf');
-        transactionSteps.animate()
     }
 
     function Stopprocessingblip() {
-
         transactionSteps.classList.remove('purple-shadow-blip-inf');
         transactionSteps.classList.add('purple-shadow-blip');
-
     }
 
-    incorrect_password = true
-
-
-
-    function verifyPassword() {
-        const password = document.getElementById('password').value;
-
-        // Here you should add your password verification logic
-        if (password === "123") { // Replace "correctPassword" with the actual password logic
-            blip()
-            document.getElementById('password-card').classList.add('slide-left')
-            document.getElementById('password-card').classList.remove('active')
-            incorrect_password = false
-
-            showProcessingCard();
-
-        } else {
-            blip()
-            document.getElementById('password-card').classList.add('slide-left')
-            document.getElementById('password-card').classList.remove('active')
-            incorrect_password = true
-            showProcessingCard();
-        }
-    }
-
-    function showProcessingCard() {
-        document.getElementById('processing-card').classList.add('active','slide-in-right');
-        if(incorrect_password === true){
-            Startprocessingblip()
-            blip()
-            setTimeout(showFailureCard, 3000); // Wait for 3 seconds before showing the success card
-        }else{
-            setTimeout(showSuccessCard, 3000); // Wait for 3 seconds before showing the success card
-        }
-    }
-
-    function showSuccessCard() {
-        playTransactionCompletedSound();
-        initiateFlipAnimation();
-        document.getElementById('success-card').classList.add('active','slide-in-right');
-        document.getElementById('processing-card').classList.remove('active')
-        initiateFlipAnimation();
-        Stopprocessingblip()
-
-    }
-
-    function showFailureCard() {
-        playTransactionFailedSound();
-        initiateFlipAnimation();
-        document.getElementById('failure-card').classList.add('active','slide-in-right');
-        document.getElementById('processing-card').classList.remove('active')
-        initiateFlipAnimation();
-        Stopprocessingblip()
-    }
-
-
-    function initiateFlipAnimation() {
-        const icon = document.getElementById('tick-icon');
-        icon.classList.add('flip');
-
-        // Optionally, remove the class after the animation completes to allow re-triggering
-        setTimeout(() => {
-            icon.classList.remove('flip');
-        }, 1000); // Duration of the animation should match the CSS animation duration
-    }
-
-    // Example: Initiate the animation on page load or after some condition is met
-    document.addEventListener('DOMContentLoaded', (event) => {
-        initiateFlipAnimation();
+    document.querySelectorAll('.next-step').forEach(button => {
+        button.addEventListener('click', () => {
+            const currentCard = document.querySelector('.card.active');
+            const nextCard = currentCard.nextElementSibling;
+            if (nextCard) {
+                currentCard.classList.remove('active');
+                nextCard.classList.add('active');
+                blip();
+            }
+        });
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const steps = document.querySelectorAll('.card');
-        const transactionSteps = document.getElementById('transaction-steps');
-        let currentStep = 0;
+    document.querySelectorAll('.prev-step').forEach(button => {
+        button.addEventListener('click', () => {
+            const currentCard = document.querySelector('.card.active');
+            const prevCard = currentCard.previousElementSibling;
+            if (prevCard) {
+                currentCard.classList.remove('active');
+                prevCard.classList.add('active');
+                blip();
+            }
+        });
+    });
 
-        function showStep(step, direction) {
-            transactionSteps.classList.add('purple-shadow-blip');
-            setTimeout(() => {
-                transactionSteps.classList.remove('purple-shadow-blip');
-            }, 500);
+    async function verifyPassword() {
+        const password = document.getElementById('password').value;
+        const receiverAccount = document.getElementById('receiverAccountNumber').value;
+        console.log(receiverAccount)
+        const amount = document.getElementById('amount').value;
+        const description = document.getElementById('description').value;
 
-            steps.forEach((card, index) => {
-                if (index === step) {
-                    card.classList.add('active');
-                    card.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');
-                } else {
-                    card.classList.remove('active', 'slide-right', 'slide-left');
-                }
+        if (!password || !receiverAccount || !amount) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        const transactionData = {
+            reciever_account: receiverAccount,
+            amount: amount,
+            description: description,
+            unencrypted_password: password
+        };
+
+        document.getElementById('password-card').classList.remove('active');
+        document.getElementById('processing-card').classList.add('active');
+        Startprocessingblip();
+
+        try {
+            const response = await fetch('/transaction/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(transactionData)
             });
-        }
 
-        function nextStep() {
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                showStep(currentStep, 'next');
+            const result = await response.json();
+
+            document.getElementById('processing-card').classList.remove('active');
+            Stopprocessingblip();
+
+            if (result.error === "Transaction Completed") {
+                document.getElementById('success-card').classList.add('active');
+                playTransactionCompletedSound();
+            } else {
+                document.getElementById('failure-card').classList.add('active');
+                playTransactionFailedSound();
             }
+        } catch (error) {
+            document.getElementById('processing-card').classList.remove('active');
+            document.getElementById('failure-card').classList.add('active');
+            Stopprocessingblip();
+            playTransactionFailedSound();
+            console.error('Error processing transaction:', error);
         }
+    }
 
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                showStep(currentStep, 'prev');
+    document.querySelector('.verify').addEventListener('click', async () => {
+        const receiverAccount = document.getElementById('receiverAccount').value;
+
+        try {
+            const response = await fetch(`/api/verify-account/${receiverAccount}`);
+            const result = await response.json();
+
+            const receiverAccountNameElement = document.getElementById('receiverAccountName');
+            if (result.success) {
+                receiverAccountNameElement.textContent = `Account Name: ${result.accountName}`;
+                receiverAccountNameElement.classList.add('rgb-effect');
+            } else {
+                receiverAccountNameElement.textContent = 'Account not found';
+                receiverAccountNameElement.classList.remove('rgb-effect');
             }
+        } catch (error) {
+            console.error('Error verifying account:', error);
         }
-
-        document.querySelectorAll('.next-step').forEach(button => {
-            button.addEventListener('click', nextStep);
-            initiateFlipAnimation();
-        });
-
-        document.querySelectorAll('.prev-step').forEach(button => {
-            button.addEventListener('click', prevStep);
-        });
     });
 
 </script>
+
 </body>
 </html>

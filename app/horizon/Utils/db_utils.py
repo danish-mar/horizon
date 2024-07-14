@@ -1,12 +1,12 @@
 import mysql.connector
-
+from app.horizon.Models.Transaction import *
 from app.db import get_db, close_db
 import datetime
 
-
+from app.horizon.Security.hash_utils import *
 # Function to get user ID from auth_key
 def get_user_id_from_auth_key(auth_key):
-    print(f"getting used id : {auth_key}")
+    print(f"getting user id for : {auth_key}")
 
     db = get_db()
 
@@ -36,15 +36,17 @@ def get_user_id_from_auth_key(auth_key):
 def get_account_details_from_database(user_id):
     print(f"---- Getting account details from the server for user id {user_id}")
     conn = get_db()
-
+    conn.reconnect()
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT account_id, account_number, balance, account_type FROM Account WHERE user_id = %s",
-                       (user_id,))
+        cursor.execute("SELECT account_id, account_number, balance, account_type FROM Account WHERE user_id = %s", (user_id,))
         result = cursor.fetchone()
 
-        print(f"\n--- Fetched Details \n--{result}")
+        print(f"--- Querying : {cursor.rowcount} rows")
+
+        print(f"\n--- Fetched Details \n--")
+        print(result)
 
         if result:
             return {
@@ -118,6 +120,7 @@ def check_authkey_expiration(auth_key):
 def get_account_id_from_account_number(account_number):
     conn = get_db()
     print("--- Getting account id for account : " + account_number)
+    conn.reconnect()
     cursor = conn.cursor()
 
     try:
@@ -145,10 +148,11 @@ def get_account_id_from_user_id(user_id):
     cursor = conn.cursor()
 
     try:
+        cursor.execute("SELECT account_id FROM Account WHERE user_id = %s", (user_id,))
         result = cursor.fetchone()
         print("--- Fetched Account ID ")
         if result:
-            print(f"--- Account for {user_id} : {result[0]} ")
+            print(f"--- Account ID for {user_id} : {result[0]}")
             return result[0]
         return None
 
@@ -163,6 +167,7 @@ def get_account_id_from_user_id(user_id):
 def check_user_password(user_id, hashed_password):
     print(f"--- checking password for account {user_id} with hashed password {hashed_password}")
     conn = get_db()
+    conn.reconnect()
     print("-- Connecting to the database server")
     cursor = conn.cursor()
 
@@ -171,13 +176,16 @@ def check_user_password(user_id, hashed_password):
         result = cursor.fetchone()
         if result:
             password_hash = result[0]
-            print(f"-- retrived password hash from the database {password_hash}")
-            if password_hash == hashed_password:
+            print(f"-- retrived password hash from the database {password_hash} : {hashed_password}")
+            if confirm_password_hash(password_hash, hashed_password):
+                print("--- Matched")
                 return True
             else:
+                print("--- Not Matched")
                 return False
 
         else:
+            print("--- failed")
             return False
 
     except mysql.connector.Error as e:
@@ -195,9 +203,8 @@ def get_account_from_id(account_id):
     conn = get_db()
     print("-- Connecting to the database server")
     cursor = conn.cursor()
-
     try:
-        cursor.execute("SELECT * FROM Account WHERE account_id = %s", (account_id,))
+        cursor.execute("SELECT * FROM Account WHERE user_id = %s", (account_id,))
         result = cursor.fetchone()
         if result:
             print("--- Fetched account : ")
@@ -225,7 +232,7 @@ def store_transaction_in_database(transaction):
     cursor = conn.cursor()
 
 
-def update_account_balance(account_number, new_balance_with_addition):
+def credit(account_number, add_balance):
     print(f"--- updating account balance for account number {account_number}")
     conn = get_db()
     print("-- Connecting to the database server")
@@ -241,7 +248,7 @@ def update_account_balance(account_number, new_balance_with_addition):
             print(f"--- Current balance for account number {account_number}: {current_balance}")
 
             # Calculate the new balance
-            new_balance = new_balance_with_addition
+            new_balance = current_balance + add_balance
 
             # Update the balance in the database
             cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s", (new_balance, account_number))
@@ -256,6 +263,104 @@ def update_account_balance(account_number, new_balance_with_addition):
     except mysql.connector.Error as e:
         print(f"Error updating account balance: {e}")
         return False
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+def debit(account_number, subtract_balance):
+    print(f"--- updating account balance for account number {account_number}")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        # Get the current balance
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (account_number,))
+        result = cursor.fetchone()
+
+        if result:
+            current_balance = result[0]
+            print(f"--- Current balance for account number {account_number}: {current_balance}")
+
+            # Check if the balance is sufficient for the debit
+            if current_balance >= subtract_balance:
+                # Calculate the new balance
+                new_balance = current_balance - subtract_balance
+
+                # Update the balance in the database
+                cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s", (new_balance, account_number))
+                conn.commit()
+
+                print(f"--- Updated balance for account number {account_number}: {new_balance}")
+                return True
+            else:
+                print(f"--- Insufficient balance for account number {account_number}")
+                return False
+        else:
+            print(f"--- No account found with account number {account_number}")
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error updating account balance: {e}")
+        return False
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def get_last_transaction():
+    print(f"--- Getting last transaction from the database")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM Transaction ORDER BY created_at DESC LIMIT 1")
+        result = cursor.fetchone()
+
+        if result:
+            print("--- Last transaction details:")
+            print(result)
+            last_transaction = Transaction.from_db_result(result)
+            return last_transaction
+        else:
+            print("--- No transactions found")
+            return None
+
+    except mysql.connector.Error as e:
+        print(f"Error retrieving last transaction: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def insert_transaction(sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash):
+    print(f"--- Inserting transaction into the database")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        query = """
+        INSERT INTO Transaction (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash)
+        VALUES (%s, %s, %s, %s, %s, %s);
+        """
+        cursor.execute(query, (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash))
+        conn.commit()  # Don't forget to commit the transaction
+
+        print("--- Transaction inserted successfully")
+        return cursor.lastrowid  # Return the ID of the inserted row
+
+    except mysql.connector.Error as e:
+        print(f"Error inserting transaction: {e}")
+        return None
 
     finally:
         cursor.close()

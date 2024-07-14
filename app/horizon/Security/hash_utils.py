@@ -1,6 +1,7 @@
 import bcrypt
 
 
+
 def hash_password(password):
     """
     Hashes a password securely using bcrypt.
@@ -13,12 +14,11 @@ def hash_password(password):
     """
     # Encode the password to bytes as bcrypt expects bytes
     password_bytes = password.encode('utf-8')
-    # Generate a random salt using bcrypt
-    salt = bcrypt.gensalt()
-    # Hash the password with the generated salt
-    hashed_password = bcrypt.hashpw(password_bytes, salt)
+    # Hash the password; bcrypt automatically handles the salt
+    hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
     # Return the hashed password as a UTF-8 encoded string
     return hashed_password.decode('utf-8')
+
 
 
 def confirm_password_hash(hashed_password, password):
@@ -48,17 +48,18 @@ def calculate_hash(transaction):
     return hashlib.sha256(hash_string.encode()).hexdigest()
 
 # Example transaction data
-transaction = {
-    'transaction_id': 1,
-    'sender_account_id': 100,
-    'receiver_account_id': 200,
-    'amount': 150.00,
-    'transaction_type': 'debit',
-    'description': 'Payment for services',
-    'created_at': '2024-07-09 12:34:56',
-    'previous_hash': 'previous_transaction_hash_here'
-}
+# transaction = {
+#     'transaction_id': 1,
+#     'sender_account_id': 100,
+#     'receiver_account_id': 200,
+#     'amount': 150.00,
+#     'transaction_type': 'debit',
+#     'description': 'Payment for services',
+#     'created_at': '2024-07-09 12:34:56',
+#     'previous_hash': 'previous_transaction_hash_here'
+# }
 
 # # Calculate the transaction hash
 # transaction_hash = calculate_hash(transaction)
 # print(f"Transaction Hash: {transaction_hash}")
+

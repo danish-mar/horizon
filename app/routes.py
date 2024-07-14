@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta
 import random
+from decimal import Decimal
 
 import jinja2
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, make_response
 from .db import get_db
+from .horizon.Models.Transaction import Transaction
 from .horizon.Security.hash_utils import hash_password, confirm_password_hash
 from .horizon.Security.auth_util import generate_auth_key
 import mysql.connector
@@ -228,7 +230,7 @@ def init_transaction():
         # fetches the account details from the client
 
         reciever_account_number = data.get('reciever_account')
-        amount_to_be_sent = data.get('amount')
+        amount_to_be_sent = Decimal(data.get('amount'))
         description = data.get('description')
         unencrypted_password = data.get('unencrypted_password')
 
@@ -245,15 +247,18 @@ def init_transaction():
         client_hashed_password = hash_password(unencrypted_password)
 
         # gets the password from the database and validate it
-        if check_user_password(user_id,client_hashed_password):
+        if check_user_password(user_id,unencrypted_password):
             # upon successful validation make a transaction
+            print("-- Authentication Successfull")
             # gets the initiater's account details
             initiater_account_details = get_account_details_from_database(user_id)
             print(initiater_account_details)
             # get's the account balance from the initiater's account
-            initiater_account_balance = initiater_account_details[2]
+            initiater_account_balance = initiater_account_details['account_balance']
             print(initiater_account_balance)
             # compare the balance with the amount to be transfered
+            print(type(initiater_account_balance))
+            print(type(amount_to_be_sent))
             if initiater_account_balance < amount_to_be_sent:
                 # returns insufficient balance due to lack of balance in the account
                 return jsonify({'error': 'Insufficient balance'}), 401
@@ -265,25 +270,26 @@ def init_transaction():
                 # extract account balance
                 reciever_current_account_balance = reciever_account_object[4]
                 # adds the amount to it
-                reciever_account_new_balance = reciever_current_account_balance + amount_to_be_sent
-                # updates the amount on the database server
-                update_account_balance(reciever_account_number, reciever_account_new_balance)
-                print("--- Transaction completed ")
-                # creates a new transaction
+                # reciever_account_new_balance = reciever_current_account_balance + amount_to_be_sent
+                # initiater_account_new_balance = initiater_account_balance - amount_to_be_sent
+                # updates the amounts on the database server
+                credit(reciever_account_number, amount_to_be_sent)
+                debit(initiater_account_details['account_number'], amount_to_be_sent)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+                current_date_time = datetime.datetime.now()
+                print("--- Transaction partially completed ")
+                # creates a new transaction to update on the transaction database
+                print("--- Updating blockchain on the database server")
+                # create's the debit transaction
+                last_transaction_hash = get_last_transaction().calculate_hash()
+                # on the basis of this create the transaction details
+                insert_transaction(initiater_account_id,reciever_account_id,amount_to_be_sent,"debit",description,last_transaction_hash)
+                new_last_transaction_hash = get_last_transaction().calculate_hash()
+                # now for the credited account
+                insert_transaction(initiater_account_id,reciever_account_id,amount_to_be_sent,"credit",description,new_last_transaction_hash)
+                #completed
+                print("--- Transaction fully completed")
+                return jsonify({'error': 'Transaction Completed'}), 200
     else:
         return jsonify({'error': 'Unauthorized'}), 401
 
