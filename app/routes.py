@@ -8,8 +8,7 @@ from .horizon.Security.hash_utils import hash_password, confirm_password_hash
 from .horizon.Security.auth_util import generate_auth_key
 import mysql.connector
 
-from .horizon.Utils.db_utils import get_user_id_from_auth_key, get_account_details_from_database, \
-    get_user_details_from_database_by_id
+from .horizon.Utils.db_utils import *
 
 main = Blueprint('main', __name__)
 
@@ -26,29 +25,38 @@ def contact():
     return render_template('contact.html')
 
 
-
-
-
 # All routes releted to account
 @main.route('/account', methods=['GET'])
 def account_view():
     auth_key = request.cookies.get('X-Auth-Token')
+    print(f"---- Retrived Auth-Key : {auth_key}")
+    print(f"---- Checking Token Expiration...")
+    # if not auth_key or not check_authkey_expiration(auth_key) or not get_user_id_from_auth_key(auth_key):
+    #     return redirect(url_for('main.auth'))
     if not auth_key:
         return redirect(url_for('main.auth'))
+    if not check_authkey_expiration(auth_key):
+        return redirect(url_for('main.auth'))
 
-    print(f"---- Retrived Auth-Key : {auth_key}")
     user_id = get_user_id_from_auth_key(auth_key)
-    print(user_id)
-    if not user_id:
-        return redirect('/auth/login')
 
+
+    # if auth_key:
+    #     if check_authkey_expiration(auth_key):
+    #         return redirect(url_for('main.auth'))
+
+    # user_id = get_user_id_from_auth_key(auth_key)
+    # # print(user_id)
+    # if not user_id:
+    #      return redirect('/auth/login')
+    close_db()
     account_details = get_account_details_from_database(user_id)
+    close_db()
     user_details = get_user_details_from_database_by_id(user_id)
     print(user_details)
 
     if not account_details:
         return render_template('account/account_not_found.html')
-
 
     # Unpack the details correctly
     account_name = user_details[1]  # Assuming this is the username or user's full name
@@ -57,7 +65,9 @@ def account_view():
     account_balance = account_details['account_balance']  # Access by key
     account_type = account_details['account_type']
 
-    return render_template('account/account.html', last_name=account_name.capitalize(), account_number=account_number, account_balance=account_balance, account_type=account_type)
+    return render_template('account/account.html', last_name=account_name.capitalize(), account_number=account_number,
+                           account_balance=account_balance, account_type=account_type)
+
 
 @main.route('/account/create', methods=['GET', 'POST'])
 def create_account():
@@ -102,13 +112,15 @@ def create_account():
         cursor = db.cursor()
         try:
             # Insert user data
-            cursor.execute('INSERT INTO User (username, password_hash, first_name, last_name, email, phone_number) VALUES (%s, %s, %s, %s, %s, %s)',
-                           (username, hashed_password, first_name, last_name, email, phone_number))
+            cursor.execute(
+                'INSERT INTO User (username, password_hash, first_name, last_name, email, phone_number) VALUES (%s, %s, %s, %s, %s, %s)',
+                (username, hashed_password, first_name, last_name, email, phone_number))
             user_id = cursor.lastrowid  # Get the last inserted user_id
 
             # Insert account data linked to the user
-            cursor.execute('INSERT INTO Account (user_id, account_number, account_type, balance, created_at) VALUES (%s, %s, %s, %s, %s)',
-                           (user_id, account_number, account_type, initial_balance, created_at))
+            cursor.execute(
+                'INSERT INTO Account (user_id, account_number, account_type, balance, created_at) VALUES (%s, %s, %s, %s, %s)',
+                (user_id, account_number, account_type, initial_balance, created_at))
 
             db.commit()
             flash('User created successfully!', 'success')
@@ -122,13 +134,13 @@ def create_account():
         return redirect(url_for('main.create_account'))
 
 
-
 @main.route('/account/update', methods=['GET', 'POST'])
 def update_account_info():
     if request.method == 'GET':
         return "Requested to view account creationg page"  # returns the account update page
     elif request.method == 'POST':
         return "Requested to use account creation API"  # returns the result of the API
+
 
 @main.route('/account/<int:account_id>', methods=['GET'])
 def get_account_details(account_id):
@@ -167,16 +179,13 @@ def link_account():
     pass
 
 
-
-
-
 # Transaction related Endpoints
 
 @main.route('/transactions/<int:transaction_id>', methods=['GET'])
 def get_related_transaction(transaction_id):
     # implement a logic to validate the relativeness and return the data into json format
 
-    return jsonify({'error':'Unauthorized'}),401
+    return jsonify({'error': 'Unauthorized'}), 401
     pass
 
 
@@ -190,22 +199,25 @@ def get_transactions():
     return jsonify({'transactions': result}), 200
 
 
-
-@main.route('/transaction/new',methods=['POST','GET'])
+@main.route('/transaction/new', methods=['POST', 'GET'])
 def init_transaction():
+    auth_key = request.cookies.get('X-Auth-Token')
 
     # first lets get the details of the transaction:
     if request.method == 'GET':
-        return render_template("account/new_transaction.html")
+        # if not auth_key:
+        #     return redirect(url_for('main.auth'))
+        # if check_authkey_expiration(auth_key):
+        #     return render_template("account/new_transaction.html")
+        # else:
+        #     return render_template("account/login.html")
 
-
+        if auth_key and check_authkey_expiration(auth_key):
+            return render_template("/account/new_transaction.html")
+        else:
+            return redirect("/auth/login")
 
     # return jsonify({'error':'Unauthorized'}),401
-
-
-
-
-
 
 
 # Authentication related endpoints
@@ -231,7 +243,6 @@ def auth():
             cursor.execute('SELECT * FROM User WHERE username = %s', (username,))
             user = cursor.fetchone()
 
-
             if user:
                 print(f"Retrieved user: {user}")
                 password_hash = user.get('password_hash')
@@ -239,7 +250,7 @@ def auth():
 
                 if password_hash and confirm_password_hash(password_hash, password):
                     auth_key = generate_auth_key()
-                    expiry_timestamp = datetime.now() + timedelta(minutes=30)
+                    expiry_timestamp = datetime.datetime.now() + timedelta(minutes=30)
                     cursor.execute(
                         'INSERT INTO Auth_Key (auth_key, user_id, expiry_timestamp) VALUES (%s, %s, %s)',
                         (auth_key, user['user_id'], expiry_timestamp)
