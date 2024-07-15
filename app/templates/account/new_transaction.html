@@ -277,6 +277,20 @@
             display:inline-block;
         }
 
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .xcross {
+            display: inline-block;
+            animation: shake 0.5s;
+        }
+
+
     </style>
 </head>
 <body>
@@ -388,7 +402,7 @@
                 <div class="card" id="failure-card">
                     <div class="card-body text-center">
                         <div class="mb-3 tsr">
-                            <i id="cross-icon" class="fas fa-times-circle" style="color: #ff4d4d; font-size: 100px"></i>
+                            <i id="cross-icon" class="fas fa-times-circle xcross" style="color: #ff4d4d; font-size: 100px"></i>
                         </div>
                         <h5 class="card-title">Transaction Failed</h5>
                         <p>Your transaction could not be completed.</p>
@@ -465,6 +479,21 @@
         audio.play();
     }
 
+    function initiateFlipAnimation() {
+        const icon = document.getElementById('tick-icon');
+        icon.classList.add('flip');
+
+        // Optionally, remove the class after the animation completes to allow re-triggering
+        setTimeout(() => {
+            icon.classList.remove('flip');
+        }, 1000); // Duration of the animation should match the CSS animation duration
+    }
+
+    // Example: Initiate the animation on page load or after some condition is met
+    document.addEventListener('DOMContentLoaded', (event) => {
+        initiateFlipAnimation();
+    });
+
     function playTransactionFailedSound() {
         const audio = document.getElementById('notification-sound-transaction-failed');
         audio.play();
@@ -487,29 +516,43 @@
         transactionSteps.classList.add('purple-shadow-blip');
     }
 
-    document.querySelectorAll('.next-step').forEach(button => {
-        button.addEventListener('click', () => {
-            const currentCard = document.querySelector('.card.active');
-            const nextCard = currentCard.nextElementSibling;
-            if (nextCard) {
-                currentCard.classList.remove('active');
-                nextCard.classList.add('active');
-                blip();
-            }
+    document.addEventListener('DOMContentLoaded', function () {
+        function showStep(currentCard, nextCard, direction) {
+            const transactionSteps = document.getElementById('transaction-steps');
+            transactionSteps.classList.add('purple-shadow-blip');
+            setTimeout(() => {
+                transactionSteps.classList.remove('purple-shadow-blip');
+            }, 500);
+
+            currentCard.classList.remove('active', 'slide-right', 'slide-left');
+            nextCard.classList.add('active');
+            nextCard.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');
+        }
+
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', () => {
+                const currentCard = document.querySelector('.card.active');
+                const nextCard = currentCard.nextElementSibling;
+                if (nextCard) {
+                    showStep(currentCard, nextCard, 'next');
+                    blip();
+                }
+            });
+        });
+
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', () => {
+                const currentCard = document.querySelector('.card.active');
+                const prevCard = currentCard.previousElementSibling;
+                if (prevCard) {
+                    showStep(currentCard, prevCard, 'prev');
+                    blip();
+                }
+            });
         });
     });
 
-    document.querySelectorAll('.prev-step').forEach(button => {
-        button.addEventListener('click', () => {
-            const currentCard = document.querySelector('.card.active');
-            const prevCard = currentCard.previousElementSibling;
-            if (prevCard) {
-                currentCard.classList.remove('active');
-                prevCard.classList.add('active');
-                blip();
-            }
-        });
-    });
+
 
     async function verifyPassword() {
         const password = document.getElementById('password').value;
@@ -550,6 +593,7 @@
 
             if (result.error === "Transaction Completed") {
                 document.getElementById('success-card').classList.add('active');
+                initiateFlipAnimation()
                 playTransactionCompletedSound();
             } else {
                 document.getElementById('failure-card').classList.add('active');

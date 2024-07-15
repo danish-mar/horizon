@@ -190,14 +190,29 @@ def get_related_transaction(transaction_id):
     pass
 
 
-@main.route('/transactions', methods=['GET'])
+@main.route('/transactions', methods=['GET', 'POST'])
 def get_transactions():
-    db = get_db()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM Transaction')
-    result = cursor.fetchall()
-    cursor.close()
-    return jsonify({'transactions': result}), 200
+    auth_key = request.cookies.get('X-Auth-Token')
+    if is_auth_key(auth_key):
+        try:
+            db = get_db()
+            db.reconnect()
+            if db.is_connected():
+                cursor = db.cursor(dictionary=True)
+                user_id = get_user_id_from_auth_key(auth_key)
+                user_account_id = get_account_id_from_user_id(user_id)
+                db.reconnect()
+                cursor.execute('SELECT * FROM Transaction WHERE account_id = %s', (user_account_id,))
+                result = cursor.fetchall()
+                cursor.close()
+                return jsonify({'transactions': result}), 200
+            else:
+                return jsonify({'error': 'Database connection lost'}), 500
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return jsonify({'error': 'Database error'}), 500
+    else:
+        return jsonify({'error': 'Unauthorized'}), 401
 
 
 @main.route('/transaction/new', methods=['POST', 'GET'])
@@ -247,7 +262,7 @@ def init_transaction():
         client_hashed_password = hash_password(unencrypted_password)
 
         # gets the password from the database and validate it
-        if check_user_password(user_id,unencrypted_password):
+        if check_user_password(user_id, unencrypted_password):
             # upon successful validation make a transaction
             print("-- Authentication Successfull")
             # gets the initiater's account details
@@ -273,20 +288,20 @@ def init_transaction():
                 # reciever_account_new_balance = reciever_current_account_balance + amount_to_be_sent
                 # initiater_account_new_balance = initiater_account_balance - amount_to_be_sent
                 # updates the amounts on the database server
-                credit(reciever_account_number, amount_to_be_sent)
-                debit(initiater_account_details['account_number'], amount_to_be_sent)
+                credit(reciever_account_number, amount_to_be_sent, description)
+                debit(initiater_account_details['account_number'], amount_to_be_sent, description)
 
                 current_date_time = datetime.datetime.now()
                 print("--- Transaction partially completed ")
                 # creates a new transaction to update on the transaction database
                 print("--- Updating blockchain on the database server")
                 # create's the debit transaction
-                last_transaction_hash = get_last_transaction().calculate_hash()
+                # last_transaction_hash = get_last_transaction().calculate_hash()
                 # on the basis of this create the transaction details
-                insert_transaction(initiater_account_id,reciever_account_id,amount_to_be_sent,"debit",description,last_transaction_hash)
-                new_last_transaction_hash = get_last_transaction().calculate_hash()
+                # insert_transaction(initiater_account_id,reciever_account_id,amount_to_be_sent,"debit",description,last_transaction_hash)
+                # new_last_transaction_hash = get_last_transaction().calculate_hash()
                 # now for the credited account
-                insert_transaction(initiater_account_id,reciever_account_id,amount_to_be_sent,"credit",description,new_last_transaction_hash)
+                # insert_transaction(initiater_account_id,reciever_account_id,amount_to_be_sent,"credit",description,new_last_transaction_hash)
                 #completed
                 print("--- Transaction fully completed")
                 return jsonify({'error': 'Transaction Completed'}), 200
@@ -410,6 +425,7 @@ def check_authentication():
         authenticated = False
     return jsonify({'authenticated': authenticated})
 
+
 @main.route('/account/owner/name', methods=['POST'])
 def get_account_owner_name():
     auth_key = request.cookies.get('X-Auth-Token')
@@ -424,8 +440,9 @@ def get_account_owner_name():
             last_name = user_details[2]
 
             print(jsonify({'success': True, 'account_number': account_number, 'user_details': user_details}))
-            return jsonify({'success': True, 'account_number': account_number, 'first_name': first_name, 'last_name': last_name}), 200
+            return jsonify({'success': True, 'account_number': account_number, 'first_name': first_name,
+                            'last_name': last_name}), 200
         else:
-            return jsonify({'success': False, 'message':'Account Not Found!'}), 404
+            return jsonify({'success': False, 'message': 'Account Not Found!'}), 404
     else:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401

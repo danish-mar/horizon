@@ -235,7 +235,7 @@ def store_transaction_in_database(transaction):
     cursor = conn.cursor()
 
 
-def credit(account_number, add_balance):
+def credit(account_number, add_balance, description):
     print(f"--- updating account balance for account number {account_number}")
     conn = get_db()
     print("-- Connecting to the database server")
@@ -258,6 +258,10 @@ def credit(account_number, add_balance):
             conn.commit()
 
             print(f"--- Updated balance for account number {account_number}: {new_balance}")
+
+            print(f"--- Updating Transaction table")
+            insert_transaction(account_number, add_balance, "credit", description,
+                               get_last_transaction().calculate_hash())
             return True
         else:
             print(f"--- No account found with account number {account_number}")
@@ -273,7 +277,7 @@ def credit(account_number, add_balance):
         close_db()
 
 
-def debit(account_number, subtract_balance):
+def debit(account_number, subtract_balance, description):
     print(f"--- updating account balance for account number {account_number}")
     conn = get_db()
     print("-- Connecting to the database server")
@@ -299,6 +303,12 @@ def debit(account_number, subtract_balance):
                 conn.commit()
 
                 print(f"--- Updated balance for account number {account_number}: {new_balance}")
+
+                print(f"--- Updating records")
+
+                insert_transaction(account_number, subtract_balance, "debit", description,
+                                   get_last_transaction().calculate_hash())
+
                 return True
             else:
                 print(f"--- Insufficient balance for account number {account_number}")
@@ -346,20 +356,41 @@ def get_last_transaction():
         close_db()
 
 
-def insert_transaction(sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash):
+def get_account_id_by_account_number(account_number, conn, cursor):
+    try:
+        query = "SELECT account_id FROM Account WHERE account_number = %s"
+        print(f"--- Executing: {query} with parameter: {account_number}")
+        cursor.execute(query, (account_number,))
+        result = cursor.fetchone()
+        if result:
+            print("--- fetched account ID")
+            return result[0]
+        else:
+            return None
+    except mysql.connector.Error as e:
+        print(f"Error retrieving account ID: {e}")
+        return None
+
+
+def insert_transaction(account_number, amount, transaction_type, description, previous_hash):
     print(f"--- Inserting transaction into the database")
     conn = get_db()
-    print("-- Connecting to the database server")
+    conn.reconnect()
     cursor = conn.cursor()
 
     try:
+        # Fetch account_id using the provided account_number
+        account_id = get_account_id_by_account_number(account_number, conn, cursor)
+        if not account_id:
+            print("Error: Account ID not found.")
+            return None
+
         query = """
-        INSERT INTO Transaction (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash)
-        VALUES (%s, %s, %s, %s, %s, %s);
+        INSERT INTO Transaction (account_id, amount, transaction_type, description, previous_hash)
+        VALUES (%s, %s, %s, %s, %s);
         """
-        cursor.execute(query,
-                       (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash))
-        conn.commit()  # Don't forget to commit the transaction
+        cursor.execute(query, (account_id, amount, transaction_type, description, previous_hash))
+        conn.commit()  # Commit the transaction
 
         print("--- Transaction inserted successfully")
         return cursor.lastrowid  # Return the ID of the inserted row
@@ -367,7 +398,6 @@ def insert_transaction(sender_account_id, receiver_account_id, amount, transacti
     except mysql.connector.Error as e:
         print(f"Error inserting transaction: {e}")
         return None
-
     finally:
         cursor.close()
         conn.close()
@@ -435,4 +465,3 @@ def is_auth_key(auth_key):
             cursor.close()
             conn.close()
             close_db()
-
