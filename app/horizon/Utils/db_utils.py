@@ -4,6 +4,8 @@ from app.db import get_db, close_db
 import datetime
 
 from app.horizon.Security.hash_utils import *
+
+
 # Function to get user ID from auth_key
 def get_user_id_from_auth_key(auth_key):
     print(f"getting user id for : {auth_key}")
@@ -40,7 +42,8 @@ def get_account_details_from_database(user_id):
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT account_id, account_number, balance, account_type FROM Account WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT account_id, account_number, balance, account_type FROM Account WHERE user_id = %s",
+                       (user_id,))
         result = cursor.fetchone()
 
         print(f"--- Querying : {cursor.rowcount} rows")
@@ -119,11 +122,11 @@ def check_authkey_expiration(auth_key):
 
 def get_account_id_from_account_number(account_number):
     conn = get_db()
-    print("--- Getting account id for account : " + account_number)
+    print(f"--- Getting account id for account : {account_number} ")
     conn.reconnect()
     cursor = conn.cursor()
-
     try:
+        int_account_number = int(account_number)
         cursor.execute("SELECT account_id FROM Account WHERE account_number = %s", (account_number,))
         result = cursor.fetchone()
         if result:
@@ -133,7 +136,7 @@ def get_account_id_from_account_number(account_number):
             return None
 
     except mysql.connector.Error as e:
-        print(f"Failed to get account for {account_number}\nDatabase Connection Error")
+        print(f"Failed to get account for {account_number}\nError retrieving details of account: {e}")
         return None
 
     finally:
@@ -269,6 +272,7 @@ def credit(account_number, add_balance):
         conn.close()
         close_db()
 
+
 def debit(account_number, subtract_balance):
     print(f"--- updating account balance for account number {account_number}")
     conn = get_db()
@@ -290,7 +294,8 @@ def debit(account_number, subtract_balance):
                 new_balance = current_balance - subtract_balance
 
                 # Update the balance in the database
-                cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s", (new_balance, account_number))
+                cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s",
+                               (new_balance, account_number))
                 conn.commit()
 
                 print(f"--- Updated balance for account number {account_number}: {new_balance}")
@@ -352,7 +357,8 @@ def insert_transaction(sender_account_id, receiver_account_id, amount, transacti
         INSERT INTO Transaction (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash)
         VALUES (%s, %s, %s, %s, %s, %s);
         """
-        cursor.execute(query, (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash))
+        cursor.execute(query,
+                       (sender_account_id, receiver_account_id, amount, transaction_type, description, previous_hash))
         conn.commit()  # Don't forget to commit the transaction
 
         print("--- Transaction inserted successfully")
@@ -366,3 +372,67 @@ def insert_transaction(sender_account_id, receiver_account_id, amount, transacti
         cursor.close()
         conn.close()
         close_db()
+
+
+def get_account_user_id_by_account_id(account_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    conn.reconnect()
+    try:
+        query = "SELECT user_id FROM Account WHERE account_id = %s"
+        print(f"Executing: {query} with parameter: {account_id}")
+        cursor.execute(query, (account_id,))
+        result = cursor.fetchone()
+        if result:
+            print("--- fetched account owner id")
+            return result[0]
+        else:
+            return None
+    except mysql.connector.Error as e:
+        print(f"Error retrieving details of account: {e}")
+        return None
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def get_userdetails_from_account_number(account_number):
+    account_id = get_account_id_from_account_number(account_number)
+    owner_id = get_account_user_id_by_account_id(account_id)
+    user_details = get_user_details_from_database_by_id(owner_id)
+    return user_details
+
+
+def is_auth_key(auth_key):
+    conn = get_db()
+    cursor = conn.cursor()
+    conn.reconnect()
+    try:
+        query = "SELECT * FROM Auth_Key WHERE auth_key = %s"
+        print(f" Executing : {query} with parameter: {auth_key}")
+        cursor.execute(query, (auth_key,))
+        result = cursor.fetchone()
+        if result:
+            auth_expiration_date = result[2]
+            if auth_expiration_date > datetime.datetime.now():
+                print("--- Authorized")
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error verifying auth key {auth_key}")
+        print(e)
+        return False
+
+    finally:
+        if conn.is_connected():
+            print("--- Closing Connection")
+            cursor.close()
+            conn.close()
+            close_db()
+

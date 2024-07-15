@@ -187,6 +187,96 @@
             }
         }
 
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px); /* Blurred background */
+            -webkit-backdrop-filter: blur(5px); /* Blurred background for Safari */
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #ff00a8; /* Dark pink background */
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 25px; /* Rounded corners */
+            align-items: center;
+            width: 80%;
+            max-width: 400px; /* Limit width for smaller screens */
+            position: relative;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation-name: modal-fade-in;
+            animation-duration: 0.5s;
+        }
+        .close {
+            color: #fff;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #ccc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            width: calc(100% - 30px);
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+            background-color: #fff;
+            outline: none;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 8px #ff00a8;
+        }
+
+
+        /* Fade-in animation */
+        @keyframes modal-fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+    {#    captcha theme  #}
+        #image{
+            margin-top: 10px;
+            /* box-shadow: 5px 5px 5px 5px gray; */
+            /* width: 60px; */
+            /* padding: 20px; */
+            /* font-weight: 400; */
+            /* padding-bottom: 0px; */
+            /* height: 40px; */
+            user-select: none;
+            text-decoration: line-through;
+            font-style: italic;
+            font-size: x-large;
+            border: #f88cff 2px solid;
+            /* margin-left: 10px; */
+            margin-bottom: 5px;
+            padding-inline: 15px;
+            padding: 20px;
+        }
+
+        .inline{
+            display:inline-block;
+        }
+
     </style>
 </head>
 <body>
@@ -220,9 +310,8 @@
                         <div class="form-group">
                             <label for="receiverAccount" class="form-label">Receiver Account ID</label>
                             <input type="text" class="form-control" id="receiverAccountNumber" name="receiverAccount" required>
-                            <p class="reciever_account_name" id="receiverAccountName"></p>
-
-                            <button class="btn btn-pink verify"><i class="fa-solid fa-check"></i> Verify</button>
+                            <p class="receiver_account_name" id="receiver_name"></p>
+                            <button class="btn btn-pink verify" onclick="openModal()"><i class="fa-solid fa-check"></i> Verify</button>
                         </div>
                         <div class="d-flex justify-content-between mt-3">
                             <button class="btn btn-pink next-step"><i class="fas fa-arrow-right"></i> Next</button>
@@ -306,10 +395,26 @@
                         <button class="btn btn-pink "><i class="fa-solid fa-user"></i> Home</button>
                     </div>
                 </div>
-
-
             </div>
+
+
         </div>
+    </div>
+</div>
+<!-- The Modal -->
+<div id="captchaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Complete the CAPTCHA</h2>
+        <div id="user-input" class="inline">
+            <input type="text" id="submit" placeholder="Captcha code" />
+        </div>
+        <div class="inline" onclick="generate()">
+            <i class="fas fa-sync"></i>
+        </div>
+        <div id="image" class="inline" selectable="False"></div>
+        <input type="submit" class="btn btn-pink" id="btn" onclick="verifyCaptcha()" />
+        <p id="key"></p>
     </div>
 </div>
 
@@ -317,174 +422,42 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Font Awesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- Custom JavaScript -->
-{#<script>#}
-{#    const transactionSteps = document.getElementById('transaction-steps');#}
-{##}
-{##}
-{##}
-{#    function playTransactionCompletedSound() {#}
-{#        const audio = document.getElementById('notification-sound');#}
-{#        audio.play();#}
-{#    }#}
-{##}
-{#    function playTransactionFailedSound() {#}
-{#        const audio = document.getElementById('notification-sound-transaction-failed');#}
-{#        audio.play();#}
-{#    }#}
-{##}
-{#    function blip() {#}
-{#        transactionSteps.classList.add('purple-shadow-blip');#}
-{#        setTimeout(() => {#}
-{#            transactionSteps.classList.remove('purple-shadow-blip');#}
-{#        }, 500);#}
-{#    }#}
-{#    #}
-{#    function redblip() {#}
-{#        #}
-{#    }#}
-{#    #}
-{#    function Startprocessingblip() {#}
-{#        transactionSteps.classList.remove('purple-shadow-blip');#}
-{##}
-{#        transactionSteps.classList.add('purple-shadow-blip-inf');#}
-{#        transactionSteps.animate()#}
-{#    }#}
-{##}
-{#    function Stopprocessingblip() {#}
-{##}
-{#        transactionSteps.classList.remove('purple-shadow-blip-inf');#}
-{#        transactionSteps.classList.add('purple-shadow-blip');#}
-{##}
-{#    }#}
-{##}
-{#    incorrect_password = true#}
-{##}
-{##}
-{##}
-{#    function verifyPassword() {#}
-{#        const password = document.getElementById('password').value;#}
-{##}
-{#        // Here you should add your password verification logic#}
-{#        if (password === "123") { // Replace "correctPassword" with the actual password logic#}
-{#            blip()#}
-{#            document.getElementById('password-card').classList.add('slide-left')#}
-{#            document.getElementById('password-card').classList.remove('active')#}
-{#            incorrect_password = false#}
-{##}
-{#            showProcessingCard();#}
-{##}
-{#        } else {#}
-{#            blip()#}
-{#            document.getElementById('password-card').classList.add('slide-left')#}
-{#            document.getElementById('password-card').classList.remove('active')#}
-{#            incorrect_password = true#}
-{#            showProcessingCard();#}
-{#        }#}
-{#    }#}
-{##}
-{#    function showProcessingCard() {#}
-{#        document.getElementById('processing-card').classList.add('active','slide-in-right');#}
-{#        if(incorrect_password === true){#}
-{#            Startprocessingblip()#}
-{#            blip()#}
-{#            setTimeout(showFailureCard, 3000); // Wait for 3 seconds before showing the success card#}
-{#        }else{#}
-{#            setTimeout(showSuccessCard, 3000); // Wait for 3 seconds before showing the success card#}
-{#        }#}
-{#    }#}
-{##}
-{#    function showSuccessCard() {#}
-{#        playTransactionCompletedSound();#}
-{#        initiateFlipAnimation();#}
-{#        document.getElementById('success-card').classList.add('active','slide-in-right');#}
-{#        document.getElementById('processing-card').classList.remove('active')#}
-{#        initiateFlipAnimation();#}
-{#        Stopprocessingblip()#}
-{##}
-{#    }#}
-{##}
-{#    function showFailureCard() {#}
-{#        playTransactionFailedSound();#}
-{#        initiateFlipAnimation();#}
-{#        document.getElementById('failure-card').classList.add('active','slide-in-right');#}
-{#        document.getElementById('processing-card').classList.remove('active')#}
-{#        initiateFlipAnimation();#}
-{#        Stopprocessingblip()#}
-{#    }#}
-{##}
-{##}
-{#    function initiateFlipAnimation() {#}
-{#        const icon = document.getElementById('tick-icon');#}
-{#        icon.classList.add('flip');#}
-{##}
-{#        // Optionally, remove the class after the animation completes to allow re-triggering#}
-{#        setTimeout(() => {#}
-{#            icon.classList.remove('flip');#}
-{#        }, 1000); // Duration of the animation should match the CSS animation duration#}
-{#    }#}
-{##}
-{#    // Example: Initiate the animation on page load or after some condition is met#}
-{#    document.addEventListener('DOMContentLoaded', (event) => {#}
-{#        initiateFlipAnimation();#}
-{#    });#}
-{##}
-{#    document.addEventListener('DOMContentLoaded', function () {#}
-{#        const steps = document.querySelectorAll('.card');#}
-{#        const transactionSteps = document.getElementById('transaction-steps');#}
-{#        let currentStep = 0;#}
-{##}
-{#        function showStep(step, direction) {#}
-{#            transactionSteps.classList.add('purple-shadow-blip');#}
-{#            setTimeout(() => {#}
-{#                transactionSteps.classList.remove('purple-shadow-blip');#}
-{#            }, 500);#}
-{##}
-{#            steps.forEach((card, index) => {#}
-{#                if (index === step) {#}
-{#                    card.classList.add('active');#}
-{#                    card.classList.add(direction === 'next' ? 'slide-right' : 'slide-left');#}
-{#                } else {#}
-{#                    card.classList.remove('active', 'slide-right', 'slide-left');#}
-{#                }#}
-{#            });#}
-{#        }#}
-{##}
-{#        function nextStep() {#}
-{#            if (currentStep < steps.length - 1) {#}
-{#                currentStep++;#}
-{#                showStep(currentStep, 'next');#}
-{#            }#}
-{#        }#}
-{##}
-{#        function prevStep() {#}
-{#            if (currentStep > 0) {#}
-{#                currentStep--;#}
-{#                showStep(currentStep, 'prev');#}
-{#            }#}
-{#        }#}
-{##}
-{#        document.querySelectorAll('.next-step').forEach(button => {#}
-{#            button.addEventListener('click', nextStep);#}
-{#            initiateFlipAnimation();#}
-{#        });#}
-{##}
-{#        document.querySelectorAll('.prev-step').forEach(button => {#}
-{#            button.addEventListener('click', prevStep);#}
-{#        });#}
-{#    });#}
-{##}
-{##}
-{#    #}
-{##}
-{#</script>#}
-
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Font Awesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- Custom JavaScript -->
+
+<script src="{{ url_for('static', filename='javascript/applyFadeIn.js') }}"></script>
+<script src="{{ url_for('static', filename='javascript/captcha.js') }}"></script>
 <script>
+
+    function openModal() {
+        document.getElementById("captchaModal").style.display = "block";
+        generate();
+    }
+
+    function closeModal() {
+        document.getElementById("captchaModal").style.display = "none";
+    }
+
+    function verifyCaptcha() {
+        const userInput = document.getElementById("submit").value;
+        const key = document.getElementById("image").innerText;
+
+        if (userInput === key) {
+            closeModal();
+            // Call the verify function here
+            verifyReceiverAccount();
+        } else {
+            alert("Incorrect CAPTCHA. Please try again.");
+        }
+    }
+
+    function verifyReceiverAccount() {
+        displayOwnerName();
+    }
+
     const transactionSteps = document.getElementById('transaction-steps');
 
     function playTransactionCompletedSound() {
@@ -591,25 +564,53 @@
         }
     }
 
-    document.querySelector('.verify').addEventListener('click', async () => {
-        const receiverAccount = document.getElementById('receiverAccount').value;
+    function displayOwnerName(){
 
-        try {
-            const response = await fetch(`/api/verify-account/${receiverAccount}`);
-            const result = await response.json();
+        const account_name = document.getElementById('receiver_name')
+        const accountNumber = document.getElementById('receiverAccountNumber')
+        console.log(accountNumber.value)
+        const url = '/account/owner/name';
+        account_name.innerText = "Loading..."
+        // Data to send in the request body
+        const data = {
+            account_number: accountNumber.value
+        };
 
-            const receiverAccountNameElement = document.getElementById('receiverAccountName');
-            if (result.success) {
-                receiverAccountNameElement.textContent = `Account Name: ${result.accountName}`;
-                receiverAccountNameElement.classList.add('rgb-effect');
-            } else {
-                receiverAccountNameElement.textContent = 'Account not found';
-                receiverAccountNameElement.classList.remove('rgb-effect');
-            }
-        } catch (error) {
-            console.error('Error verifying account:', error);
-        }
-    });
+        // Options for the fetch request
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add any additional headers like authentication tokens here
+            },
+            body: JSON.stringify(data) // Convert data to JSON string
+        };
+
+        // Make the fetch request
+        fetch(url, options)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json(); // Parse JSON response
+            })
+            .then(data => {
+                // Handle successful response
+                console.log(data); // Log the response data
+                if (data.success) {
+                    // Process the user_details
+                    account_name.innerText = data.last_name + " " + data.first_name;
+                    // You can further process the user_details as needed
+                } else if(!data.success) {
+                    // Handle unsuccessful response
+                    account_name.innerText = `Error: ${data.message}`
+                }
+            })
+            .catch(error => {
+                // Handle fetch errors
+                console.error('Fetch error:', error);
+            });
+    }
 
 </script>
 

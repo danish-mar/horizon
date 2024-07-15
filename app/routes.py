@@ -408,5 +408,24 @@ def check_authentication():
         authenticated = True  # Replace with your actual authentication check
     else:
         authenticated = False
-
     return jsonify({'authenticated': authenticated})
+
+@main.route('/account/owner/name', methods=['POST'])
+def get_account_owner_name():
+    auth_key = request.cookies.get('X-Auth-Token')
+    print(f"--- Got verification from {auth_key}")
+    if is_auth_key(auth_key):
+        data = request.get_json()
+        account_number = data.get('account_number')
+        print(f"--- Getting owner name for {account_number}")
+        user_details = get_userdetails_from_account_number(account_number)
+        if user_details:
+            first_name = user_details[1]
+            last_name = user_details[2]
+
+            print(jsonify({'success': True, 'account_number': account_number, 'user_details': user_details}))
+            return jsonify({'success': True, 'account_number': account_number, 'first_name': first_name, 'last_name': last_name}), 200
+        else:
+            return jsonify({'success': False, 'message':'Account Not Found!'}), 404
+    else:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
