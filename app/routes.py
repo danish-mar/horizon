@@ -184,10 +184,58 @@ def link_account():
 
 @main.route('/transactions/<int:transaction_id>', methods=['GET'])
 def get_related_transaction(transaction_id):
-    # implement a logic to validate the relativeness and return the data into json format
+    auth_key = request.cookies.get('X-Auth-Token')
+    if is_auth_key(auth_key):
+        try:
+            db = get_db()
+            db.reconnect()
+            if db.is_connected():
+                cursor = db.cursor(dictionary=True)
+                user_id = get_user_id_from_auth_key(auth_key)
+                user_account_id = get_account_id_from_user_id(user_id)
+                db.reconnect()
+                cursor.execute('SELECT * FROM Transaction WHERE account_id = %s AND transaction_id = %s', (user_account_id,transaction_id,))
+                result = cursor.fetchall()
+                cursor.close()
+                return jsonify({'transactions': result}), 200
+            else:
+                return jsonify({'error': 'Database connection lost'}), 500
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return jsonify({'error': 'Database error'}), 500
+    else:
+        return jsonify({'error': 'Unauthorized'}), 401
 
-    return jsonify({'error': 'Unauthorized'}), 401
-    pass
+@main.route('/transactions/last/<int:num_transactions>', methods=['GET'])
+def get_last_transactions(num_transactions):
+    auth_key = request.cookies.get('X-Auth-Token')
+    if is_auth_key(auth_key):
+        try:
+            db = get_db()
+            db.reconnect()
+            if db.is_connected():
+                cursor = db.cursor(dictionary=True)
+                user_id = get_user_id_from_auth_key(auth_key)
+                user_account_id = get_account_id_from_user_id(user_id)
+                db.reconnect()
+                query = """
+                SELECT * FROM Transaction 
+                WHERE account_id = %s 
+                ORDER BY created_at DESC 
+                LIMIT %s
+                """
+                cursor.execute(query, (user_account_id, num_transactions))
+                result = cursor.fetchall()
+                cursor.close()
+
+                return jsonify({'transactions': result}), 200
+            else:
+                return jsonify({'error': 'Database connection lost'}), 500
+        except mysql.connector.Error as e:
+            print(f"Database error: {e}")
+            return jsonify({'error': 'Database error'}), 500
+    else:
+        return jsonify({'error': 'Unauthorized'}), 401
 
 
 @main.route('/transactions', methods=['GET', 'POST'])
@@ -283,7 +331,7 @@ def init_transaction():
                 # gets the account id and turn it into an object
                 reciever_account_object = get_account_from_id(reciever_account_id)
                 # extract account balance
-                reciever_current_account_balance = reciever_account_object[4]
+                #reciever_current_account_balance = reciever_account_object[4]
                 # adds the amount to it
                 # reciever_account_new_balance = reciever_current_account_balance + amount_to_be_sent
                 # initiater_account_new_balance = initiater_account_balance - amount_to_be_sent

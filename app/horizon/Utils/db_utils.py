@@ -205,18 +205,26 @@ def get_account_from_id(account_id):
     print(f"--- getting account from account id {account_id}")
     conn = get_db()
     print("-- Connecting to the database server")
+    conn.reconnect()
+    if conn.is_connected():
+        print("--- database is still connected")
+    else:
+        print("--- database disconnected")
+
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT * FROM Account WHERE user_id = %s", (account_id,))
+        print(cursor.fetchall())
         result = cursor.fetchone()
+        print(result)
         if result:
             print("--- Fetched account : ")
             print(f"--- Account for {account_id} : {result[0]} ")
             print(result)
             return result
-
         else:
-            return False
+            print("--- Error Fetching Data")
+            return None
 
     except mysql.connector.Error as e:
         print(f"Error retrieving details {e}")
@@ -226,13 +234,6 @@ def get_account_from_id(account_id):
         cursor.close()
         conn.close()
         close_db()
-
-
-def store_transaction_in_database(transaction):
-    # connects to the database
-    print(f"-- Storing transaction in the database")
-    conn = get_db()
-    cursor = conn.cursor()
 
 
 def credit(account_number, add_balance, description):
