@@ -9,7 +9,7 @@ from .horizon.Models.Transaction import Transaction
 from .horizon.Security.hash_utils import hash_password, confirm_password_hash
 from .horizon.Security.auth_util import generate_auth_key
 import mysql.connector
-
+import os
 from .horizon.Utils.db_utils import *
 
 main = Blueprint('main', __name__)
@@ -362,7 +362,9 @@ def init_transaction():
 @main.route('/auth/login', methods=['GET', 'POST'])
 def auth():
     if request.method == 'GET':
-        return render_template('account/login.html')
+
+        wallpaper = get_random_wallpaper_path()
+        return render_template('account/login.html',wallpaper=wallpaper)
     elif request.method == 'POST':
         data = request.get_json()  # Parse JSON data from request body
         if not data:
@@ -452,7 +454,8 @@ def logout():
 
 @main.route('/npi', methods=['GET'])
 def render_npi_page():
-    return render_template('pages/nyamo/coming_soon.html')
+    wallpaper = get_random_wallpaper_path()
+    return render_template('pages/nyamo/coming_soon.html', wallpaper=wallpaper)
 
 
 # landing page
@@ -494,3 +497,30 @@ def get_account_owner_name():
             return jsonify({'success': False, 'message': 'Account Not Found!'}), 404
     else:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+
+
+def get_random_wallpaper_path():
+    directory = 'app/static/images/wallpapers/'
+    print(os.listdir())
+    """
+    Get a random wallpaper path from the specified directory.
+
+    Parameters:
+    - directory (str): Path to the directory containing wallpaper images.
+
+    Returns:
+    - str: Random wallpaper file path.
+    """
+    # Get list of files in the directory
+    files = os.listdir(directory)
+
+    # Filter for image files (you can adjust extensions as needed)
+    image_files = [file for file in files if file.endswith(('.jpeg', '.jpg', '.png'))]
+
+    # Choose a random image file
+    random_wallpaper = random.choice(image_files)
+
+    # Construct full path to the random wallpaper
+
+    print(random_wallpaper)
+    return random_wallpaper
