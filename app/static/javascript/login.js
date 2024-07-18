@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const authToken = response.headers.get('X-Auth-Token');
                     if (authToken) {
                         // Set the cookie with the received auth token
-                        document.cookie = `X-Auth-Token=${authToken};  SameSite=Strict; path=/`;
+                        document.cookie = `X-Auth-Token=${authToken}; SameSite=Strict; path=/`;
 
                     }
                     return response.json();

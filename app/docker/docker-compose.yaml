@@ -1,16 +1,37 @@
 version: '3.8'
 
-
 services:
-  nebulal:
-    image: mysql:latest
+  horizon_server:
+    container_name: horizon_server
+    image: python:3.8-alpine
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      sh -c "if [ ! -d 'horizon' ]; then git clone https://github.com/danish-mar/horizon.git; fi && \
+             cd horizon && \
+             python -m venv .venv && \
+             source .venv/bin/activate && \
+             pip install -r requirements.txt && \
+             export FLASK_ENV=alphatesting && \
+             flask run --host=0.0.0.0"
+    ports:
+      - "5000:5000"
+    depends_on:
+      - nebula_server
+
+  nebula_server:
     container_name: nebula_server
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: nahida@dendro123
+      MYSQL_DATABASE: nebula
+      MYSQL_USER: root
+      MYSQL_PASSWORD: nahida@dendro123
     ports:
       - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: equinoxStartup
-      MYSQL_DATABASE: nebula_db
-      MYSQL_USER: star_fire
-      MYSQL_PASSWORD: starfire@321
     volumes:
-      - /docker/equinox/horizon/database:/var/lib/mysql
+      - /docker/database_mysql:/var/lib/mysql
+
+volumes:
+  db_data:
