@@ -232,8 +232,16 @@ def get_last_transactions(num_transactions):
     else:
         return jsonify({'error': 'Unauthorized'}), 401
 
+@main.route('/transaction', methods=['GET'])
+def render_transaction_page():
+    auth_key = request.cookies.get('X-Auth-Token')
+    if is_auth_key(auth_key):
+        return render_template('account/transactions.html')
+    else:
+        return redirect(url_for('main.auth'))
 
-@main.route('/transactions', methods=['GET', 'POST'])
+
+@main.route('/transactions', methods=['GET'])
 def get_transactions():
     auth_key = request.cookies.get('X-Auth-Token')
     if is_auth_key(auth_key):

@@ -11,12 +11,130 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .list-group{
+            padding: 25px;
+        }
+
+        .transaction-item {
+            border: 1px solid #444;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 1px 1px 0px 0px #edc0ff;
+            transition: transform 0.3s ease;
+        }
+        .transaction-item:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+        .transaction-credit {
+            color: #4caf50;
+        }
+        .transaction-debit {
+            color: #f44336;
+        }
+
+        .transaction-list{
+            padding: 50px;
+        }
+
+        .search-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            padding-right: 100px; /* Space for filter button */
+        }
+        .filter-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #e0e0e0;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .filter-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 10;
+        }
+        .filter-dropdown select {
+            width: 200px;
+            padding: 10px;
+            border: none;
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+        }
+        .loading-container {
+            padding: 50px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .loading-container img {
+
+        }
+    </style>
 </head>
 <body>
-    {% include 'components/header.html' %}
+{% include 'components/header.html' %}
 
+<div class="container mt-4">
+    <div class="search-container">
+        <input type="text" id="search-bar" class="search-bar" placeholder="Search transactions...">
+        <button id="filter-btn" class="filter-btn">
+            <i class="fas fa-filter"></i>
+        </button>
+        <div id="filter-dropdown" class="filter-dropdown">
+            <select id="account-filter" class="form-select">
+                <option value="">All Accounts</option>
+                <option value="from_account">From Account</option>
+                <option value="to_account">To Account</option>
+            </select>
+            <select id="type-filter" class="form-select mt-2">
+                <option value="">All Types</option>
+                <option value="credit">Credit</option>
+                <option value="debit">Debit</option>
+            </select>
+        </div>
+    </div>
 
+    <ul id="transactions-list" class="list-group">
+        <div id="loading-container" class="loading-container" style="display: none;">
+            <img src="{{ url_for('static', filename='images/gif/crunching.gif') }}" alt="Loading...">
+            <p>Crunching...</p>
+        </div>
+    </ul>
+</div>
 
-    {% include 'components/footer.html' %}
+{% include 'components/footer.html' %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ url_for('static', filename='javascript/transaction.js') }}"></script>
+
 </body>
 </html>
