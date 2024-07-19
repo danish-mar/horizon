@@ -236,36 +236,97 @@ def get_account_from_id(account_id):
         close_db()
 
 
-def credit(account_number, add_balance, description):
-    print(f"--- updating account balance for account number {account_number}")
+def credit(to_account_number, from_account_number, add_balance, description):
+    print(f"--- updating account balance for account number {to_account_number}")
     conn = get_db()
     print("-- Connecting to the database server")
     cursor = conn.cursor()
 
     try:
         # Get the current balance
-        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (account_number,))
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (to_account_number,))
         result = cursor.fetchone()
 
         if result:
+            # On first let it credit
             current_balance = result[0]
-            print(f"--- Current balance for account number {account_number}: {current_balance}")
+            print(f"--- Current balance for account number {to_account_number}: {current_balance}")
 
             # Calculate the new balance
             new_balance = current_balance + add_balance
 
             # Update the balance in the database
-            cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s", (new_balance, account_number))
+            cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s",
+                           (new_balance, to_account_number))
             conn.commit()
 
-            print(f"--- Updated balance for account number {account_number}: {new_balance}")
+            print(f"--- Updated balance for account number {to_account_number}: {new_balance}")
 
             print(f"--- Updating Transaction table")
-            insert_transaction(account_number, add_balance, "credit", description,
+            insert_transaction(to_account_number, add_balance, "credit", description,
                                get_last_transaction().calculate_hash())
             return True
         else:
-            print(f"--- No account found with account number {account_number}")
+            print(f"--- No account found with account number {to_account_number}")
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error updating account balance: {e}")
+        return False
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def credit_account(to_account_number, from_account_number, add_balance, description, platform):
+    print(f"--- Updating account balance for account number {to_account_number}")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        # Get the current balance of to_account
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (to_account_number,))
+        to_result = cursor.fetchone()
+
+        # Get the current balance of from_account
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (from_account_number,))
+        from_result = cursor.fetchone()
+
+        if to_result and from_result:
+            # On first let it credit
+            to_current_balance = to_result[0]
+            from_current_balance = from_result[0]
+            print(f"--- Current balance for account number {to_account_number}: {to_current_balance}")
+            print(f"--- Current balance for account number {from_account_number}: {from_current_balance}")
+
+            # Calculate the new balances
+            to_new_balance = to_current_balance + add_balance
+            from_new_balance = from_current_balance - add_balance
+
+            if from_new_balance < 0:
+                print(f"--- Insufficient funds in account number {from_account_number}")
+                return False
+
+            # Update the balances in the database
+            cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s",
+                           (to_new_balance, to_account_number))
+            cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s",
+                           (from_new_balance, from_account_number))
+            conn.commit()
+
+            print(f"--- Updated balance for account number {to_account_number}: {to_new_balance}")
+            print(f"--- Updated balance for account number {from_account_number}: {from_new_balance}")
+            print(f"--- Updating Transaction table")
+            insert_transaction_account(to_account_number, from_account_number, to_account_number, add_balance, "credit", description, get_last_transaction().calculate_hash(), platform)
+            return True
+        else:
+            if not to_result:
+                print(f"--- No account found with account number {to_account_number}")
+            if not from_result:
+                print(f"--- No account found with account number {from_account_number}")
             return False
 
     except mysql.connector.Error as e:
@@ -316,6 +377,71 @@ def debit(account_number, subtract_balance, description):
                 return False
         else:
             print(f"--- No account found with account number {account_number}")
+            return False
+
+    except mysql.connector.Error as e:
+        print(f"Error updating account balance: {e}")
+        return False
+
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def debit_account(from_account_number, to_account_number, subtract_balance, description, platform):
+    print(
+        f"--- {platform} :  Updating account balances for account number {from_account_number} (debit) and {to_account_number} (credit)")
+    conn = get_db()
+    print("-- Connecting to the database server")
+    cursor = conn.cursor()
+
+    try:
+        # Get the current balance of from_account
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (from_account_number,))
+        from_result = cursor.fetchone()
+
+        # Get the current balance of to_account
+        cursor.execute("SELECT balance FROM Account WHERE account_number = %s", (to_account_number,))
+        to_result = cursor.fetchone()
+
+        if from_result and to_result:
+            from_current_balance = from_result[0]
+            to_current_balance = to_result[0]
+            print(f"--- Current balance for account number {from_account_number}: {from_current_balance}")
+            print(f"--- Current balance for account number {to_account_number}: {to_current_balance}")
+
+            # Check if the balance is sufficient for the debit
+            if from_current_balance >= subtract_balance:
+                # Calculate the new balances
+                from_new_balance = from_current_balance - subtract_balance
+                to_new_balance = to_current_balance + subtract_balance
+
+                # Update the balances in the database
+                cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s",
+                               (from_new_balance, from_account_number))
+
+                cursor.execute("UPDATE Account SET balance = %s WHERE account_number = %s",
+                               (to_new_balance, to_account_number))
+                conn.commit()
+
+                print(f"--- Updated balance for account number {from_account_number}: {from_new_balance}")
+                print(f"--- Updated balance for account number {to_account_number}: {to_new_balance}")
+
+                print(f"--- Updating Transaction table")
+                # insert_transaction(from_account_number, to_account_number, subtract_balance, "debit", description,
+                #                    get_last_transaction().calculate_hash())
+                insert_transaction_account(from_account_number,from_account_number, to_account_number, subtract_balance, "debit", description, get_last_transaction().calculate_hash(), platform)
+
+                return True
+            else:
+                print(f"--- Insufficient balance for account number {from_account_number}")
+                return False
+        else:
+            if not from_result:
+                print(f"--- No account found with account number {from_account_number}")
+            if not to_result:
+                print(f"--- No account found with account number {to_account_number}")
             return False
 
     except mysql.connector.Error as e:
@@ -391,6 +517,40 @@ def insert_transaction(account_number, amount, transaction_type, description, pr
         VALUES (%s, %s, %s, %s, %s);
         """
         cursor.execute(query, (account_id, amount, transaction_type, description, previous_hash))
+        conn.commit()  # Commit the transaction
+
+        print("--- Transaction inserted successfully")
+        return cursor.lastrowid  # Return the ID of the inserted row
+
+    except mysql.connector.Error as e:
+        print(f"Error inserting transaction: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+        close_db()
+
+
+def insert_transaction_account(initiator_account_number, from_account_number, to_account_number, amount,
+                               transaction_type, description, previous_hash, platform):
+    global from_account_id, to_account_id
+
+    print(f"--- Inserting transaction into the database")
+    conn = get_db()
+    conn.reconnect()
+    cursor = conn.cursor()
+
+    try:
+        # Fetch account IDs using the provided account numbers
+        initiator_account_id = get_account_id_by_account_number(initiator_account_number, conn, cursor)
+
+
+        query = """
+        INSERT INTO Transaction (account_id, amount, transaction_type, description, previous_hash, to_account, from_account, platform)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        """
+        cursor.execute(query, (
+        initiator_account_id, amount, transaction_type, description, previous_hash, to_account_number, from_account_number, platform))
         conn.commit()  # Commit the transaction
 
         print("--- Transaction inserted successfully")

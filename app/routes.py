@@ -237,29 +237,34 @@ def get_last_transactions(num_transactions):
 def get_transactions():
     auth_key = request.cookies.get('X-Auth-Token')
     if is_auth_key(auth_key):
-        try:
-            db = get_db()
-            db.reconnect()
-            if db.is_connected():
-                cursor = db.cursor(dictionary=True)
-                user_id = get_user_id_from_auth_key(auth_key)
-                user_account_id = get_account_id_from_user_id(user_id)
+        if request.method == 'GET':
+            try:
+                db = get_db()
                 db.reconnect()
-                cursor.execute('SELECT * FROM Transaction WHERE account_id = %s', (user_account_id,))
-                result = cursor.fetchall()
-                cursor.close()
-                return jsonify({'transactions': result}), 200
-            else:
-                return jsonify({'error': 'Database connection lost'}), 500
-        except mysql.connector.Error as e:
-            print(f"Database error: {e}")
-            return jsonify({'error': 'Database error'}), 500
+                if db.is_connected():
+                    cursor = db.cursor(dictionary=True)
+                    user_id = get_user_id_from_auth_key(auth_key)
+                    user_account_id = get_account_id_from_user_id(user_id)
+                    db.reconnect()
+                    cursor.execute('SELECT * FROM Transaction WHERE account_id = %s', (user_account_id,))
+                    result = cursor.fetchall()
+                    cursor.close()
+                    return jsonify({'transactions': result}), 200
+                else:
+                    return jsonify({'error': 'Database connection lost'}), 500
+            except mysql.connector.Error as e:
+                print(f"Database error: {e}")
+                return jsonify({'error': 'Database error'}), 500
+
+        # if request.method == 'GET':
+        #     return render_template('account/transactions.html')
     else:
         return jsonify({'error': 'Unauthorized'}), 401
 
 
 @main.route('/transaction/new', methods=['POST', 'GET'])
 def init_transaction():
+    global platform_enum
     auth_key = request.cookies.get('X-Auth-Token')
 
     # first lets get the details of the transaction:
@@ -291,11 +296,13 @@ def init_transaction():
         amount_to_be_sent = Decimal(data.get('amount'))
         description = data.get('description')
         unencrypted_password = data.get('unencrypted_password')
+        platform = data.get('platform')
 
         transaction_data = {
             'reciever_account': data.get('reciever_account'),
             'amount': data.get('amount'),
             'description': data.get('description'),
+            'platform': data.get('platform')
         }
 
         print(f"---( Got New Transaction Request ) : {transaction_data}")
@@ -331,11 +338,20 @@ def init_transaction():
                 # reciever_account_new_balance = reciever_current_account_balance + amount_to_be_sent
                 # initiater_account_new_balance = initiater_account_balance - amount_to_be_sent
                 # updates the amounts on the database server
-                credit(reciever_account_number, amount_to_be_sent, description)
-                debit(initiater_account_details['account_number'], amount_to_be_sent, description)
+                # credit(reciever_account_number, amount_to_be_sent, description)
+                # debit(initiater_account_details['account_number'], amount_to_be_sent, description)
 
-                current_date_time = datetime.datetime.now()
-                print("--- Transaction partially completed ")
+                if platform == "Internet Banking":
+                    platform_enum = 1
+                elif platform == "NPI":
+                    platform_enum = 2
+                elif platform == "Card":
+                    platform_enum = 3
+                else:
+                    platform_enum = 1
+
+                debit_account(initiater_account_details['account_number'], reciever_account_number, amount_to_be_sent, description, platform_enum)
+                credit_account(reciever_account_number,initiater_account_details['account_number'],amount_to_be_sent, description, platform_enum)
                 # creates a new transaction to update on the transaction database
                 print("--- Updating blockchain on the database server")
                 # create's the debit transaction

@@ -566,11 +566,14 @@
             return;
         }
 
+        const platform = "Net Banking";
+
         const transactionData = {
             reciever_account: receiverAccount,
             amount: amount,
             description: description,
-            unencrypted_password: password
+            unencrypted_password: password,
+            platform: platform
         };
 
         document.getElementById('password-card').classList.remove('active');
