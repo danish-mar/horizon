@@ -64,13 +64,6 @@ body {
 }
 
 
-@media (min-width: 576px) {
-    .login-container {
-        justify-content: flex-start; /* Align to the left for small screens */
-        padding-left: 15px; /* Adjust padding for small screens */
-    }
-}
-
 .error-login-message{
     margin-bottom: 4px;
     color: red;

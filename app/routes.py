@@ -382,8 +382,8 @@ def init_transaction():
 def auth():
     if request.method == 'GET':
 
-        wallpaper = get_random_wallpaper_path()
-        return render_template('account/login.html',wallpaper=wallpaper)
+        video_wallpaper = get_video_filename_due_time()
+        return render_template('account/login.html',video_wallpaper=video_wallpaper)
     elif request.method == 'POST':
         data = request.get_json()  # Parse JSON data from request body
         if not data:
@@ -543,3 +543,17 @@ def get_random_wallpaper_path():
 
     print(random_wallpaper)
     return random_wallpaper
+
+
+def get_video_filename_due_time():
+    now = datetime.datetime.now()
+    hour = now.hour
+
+    if 5 <= hour < 12:
+        return 'genshin_day_trimmed.mp4'
+    elif 12 <= hour < 17:
+        return 'genshin_dawn_trimmed.mp4'
+    elif 17 <= hour < 20:
+        return 'genshin_dusk_trimmed.mp4'
+    else:
+        return 'genshin_night_trimmed.mp4'

@@ -6,47 +6,61 @@
     <title>Login - Equinox Banking</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/login.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/anim.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='images/logo/removed_x.png') }}" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1; /* Ensure the video is behind other content */
+        }
+
+        .bg-dark {
+            --bs-bg-opacity: 1;
+            background-color: rgb(33 37 41 / 62%) !important;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center; /* Move the login box to the right */
+            align-items: center;
+            height: 100vh;
+        }
+
+        .btn-pink {
+            background-color: #e83e8c;
+            border-color: #e83e8c;
+        }
+
+        .btn-pink:hover {
+            background-color: #d23174;
+            border-color: #d23174;
+        }
+
+        .login-box {
+            border-radius: 10px;
+        }
+    </style>
 </head>
-<style>
-    body {
-        background: url('{{ url_for('static', filename='images/wallpapers/'+wallpaper) }}') no-repeat center center/cover;
-        color: #fff;
-        font-family: 'Arial', sans-serif;
-    }
-
-    .bg-dark {
-        --bs-bg-opacity: 1;
-        background-color: rgb(33 37 41 / 62%) !important;
-    }
-
-    .login-container {
-        display: flex;
-        justify-content: flex-end; /* Move the login box to the right */
-        align-items: center;
-        height: 100vh;
-        padding-right: 100px; /* Adjust this value to control how far right the box moves */
-    }
-
-    .btn-pink {
-        background-color: #e83e8c;
-        border-color: #e83e8c;
-    }
-
-    .btn-pink:hover {
-        background-color: #d23174;
-        border-color: #d23174;
-    }
-
-    .login-box {
-        border-radius: 10px;
-    }
-</style>
 
 <body class="bg-dark text-light">
+<!-- Video Background -->
+<video autoplay muted loop class="video-background">
+    <source src="{{ url_for('static', filename='videos/scaled_login/' + video_wallpaper) }}" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
-
+<!-- Login Container -->
 <div class="login-container">
     <div class="login-box p-5 bg-dark text-light">
         <h2 class="text-center mb-4">Login to Equinox</h2>
@@ -60,8 +74,8 @@
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
 
-                <div id="error-login-message" class="mt-3 text-center error-login-message"></div>
-                <div id="ok-login-message" class="mt-3 text-center ok-login-message"></div>
+            <div id="error-login-message" class="mt-3 text-center error-login-message"></div>
+            <div id="ok-login-message" class="mt-3 text-center ok-login-message"></div>
 
             <button type="submit" class="btn btn-pink w-100 mb-3">Login</button>
             <button onclick="window.location.href='/account/create'" class="btn btn-pink w-100 mb-3">Sign Up</button>
