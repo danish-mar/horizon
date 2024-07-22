@@ -189,7 +189,8 @@ def get_related_transaction(transaction_id):
                 user_id = get_user_id_from_auth_key(auth_key)
                 user_account_id = get_account_id_from_user_id(user_id)
                 db.reconnect()
-                cursor.execute('SELECT * FROM Transaction WHERE account_id = %s AND transaction_id = %s', (user_account_id,transaction_id,))
+                cursor.execute('SELECT * FROM Transaction WHERE account_id = %s AND transaction_id = %s',
+                               (user_account_id, transaction_id,))
                 result = cursor.fetchall()
                 cursor.close()
                 return jsonify({'transactions': result}), 200
@@ -200,6 +201,7 @@ def get_related_transaction(transaction_id):
             return jsonify({'error': 'Database error'}), 500
     else:
         return jsonify({'error': 'Unauthorized'}), 401
+
 
 @main.route('/transactions/last/<int:num_transactions>', methods=['GET'])
 def get_last_transactions(num_transactions):
@@ -231,6 +233,7 @@ def get_last_transactions(num_transactions):
             return jsonify({'error': 'Database error'}), 500
     else:
         return jsonify({'error': 'Unauthorized'}), 401
+
 
 @main.route('/transaction', methods=['GET'])
 def render_transaction_page():
@@ -358,8 +361,10 @@ def init_transaction():
                 else:
                     platform_enum = 1
 
-                debit_account(initiater_account_details['account_number'], reciever_account_number, amount_to_be_sent, description, platform_enum)
-                credit_account(reciever_account_number,initiater_account_details['account_number'],amount_to_be_sent, description, platform_enum)
+                debit_account(initiater_account_details['account_number'], reciever_account_number, amount_to_be_sent,
+                              description, platform_enum)
+                credit_account(reciever_account_number, initiater_account_details['account_number'], amount_to_be_sent,
+                               description, platform_enum)
                 # creates a new transaction to update on the transaction database
                 print("--- Updating blockchain on the database server")
                 # create's the debit transaction
@@ -383,7 +388,7 @@ def auth():
     if request.method == 'GET':
 
         video_wallpaper = get_video_filename_due_time()
-        return render_template('account/login.html',video_wallpaper=video_wallpaper)
+        return render_template('account/login.html', video_wallpaper=video_wallpaper)
     elif request.method == 'POST':
         data = request.get_json()  # Parse JSON data from request body
         if not data:
@@ -473,8 +478,8 @@ def logout():
 
 @main.route('/npi', methods=['GET'])
 def render_npi_page():
-    wallpaper = get_random_wallpaper_path()
-    return render_template('pages/nyamo/coming_soon.html', wallpaper=wallpaper)
+    wallpaper = get_video_filename_due_time()
+    return render_template('pages/nyamo/coming_soon.html', video_wallpaper=wallpaper)
 
 
 # landing page

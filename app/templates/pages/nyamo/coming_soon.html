@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style_main.css') }}">
     <style>
         body {
-            background: url('{{ url_for('static', filename='images/wallpapers/'+wallpaper) }}') no-repeat center center/cover;
             color: #fff;
             font-family: 'Arial', sans-serif;
             height: 100vh;
@@ -17,6 +16,16 @@
             justify-content: center;
             align-items: center;
             text-align: center;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1; /* Ensure the video is behind other content */
         }
 
         .coming-soon-container {
@@ -31,6 +40,11 @@
     </style>
 </head>
 <body>
+<!-- Video Background -->
+<video autoplay muted loop class="video-background">
+    <source src="{{ url_for('static', filename='videos/scaled_login/' + video_wallpaper) }}" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
 <div class="coming-soon-container">
     <h1 class="coming-soon-title">Nyami Payment Interface</h1>
