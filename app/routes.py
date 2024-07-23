@@ -181,24 +181,52 @@ def link_account():
 def get_related_transaction(transaction_id):
     auth_key = request.cookies.get('X-Auth-Token')
     if is_auth_key(auth_key):
-        try:
-            db = get_db()
-            db.reconnect()
-            if db.is_connected():
-                cursor = db.cursor(dictionary=True)
-                user_id = get_user_id_from_auth_key(auth_key)
-                user_account_id = get_account_id_from_user_id(user_id)
+        if request.method == 'GET':
+            try:
+                db = get_db()
                 db.reconnect()
-                cursor.execute('SELECT * FROM Transaction WHERE account_id = %s AND transaction_id = %s',
-                               (user_account_id, transaction_id,))
-                result = cursor.fetchall()
-                cursor.close()
-                return jsonify({'transactions': result}), 200
-            else:
-                return jsonify({'error': 'Database connection lost'}), 500
-        except mysql.connector.Error as e:
-            print(f"Database error: {e}")
-            return jsonify({'error': 'Database error'}), 500
+                if db.is_connected():
+                    cursor = db.cursor(dictionary=True)
+                    user_id = get_user_id_from_auth_key(auth_key)
+                    user_account_id = get_account_id_from_user_id(user_id)
+                    db.reconnect()
+                    cursor.execute('SELECT * FROM Transaction WHERE account_id = %s AND transaction_id = %s',
+                                   (user_account_id, transaction_id,))
+                    result = cursor.fetchone()
+                    cursor.close()
+
+                    if result:
+                        trn_id = result['transaction_id']
+                        amount = result['amount']
+
+                        # sender
+                        sender_account_number = result['from_account']
+                        sender_account_details = get_userdetails_from_account_number(sender_account_number)
+                        sender_account_first_name = sender_account_details[1]
+                        sender_account_last_name = sender_account_details[2]
+                        sender_name = sender_account_first_name + " " + sender_account_last_name
+                        print(sender_name)
+
+                        # receiver
+                        receiver_account_number = result['to_account']
+                        receiver_account_details = get_userdetails_from_account_number(receiver_account_number)
+                        receiver_account_first_name = receiver_account_details[1]
+                        receiver_account_last_name = receiver_account_details[2]
+                        reciever_name = receiver_account_first_name + " " + receiver_account_last_name
+
+                        trn_created_at = result['created_at']
+                        description = "\n"+result['description']
+                        trn_type = result['transaction_type']
+                        trn_platform = "\n"+result['platform']
+
+                        return render_template("account/transaction.html", transaction_id=trn_id, amount=amount, sender_name=sender_name, receiver_name=reciever_name, created_at_date=trn_created_at, desc=description, from_account=sender_account_number, to_account=receiver_account_number, trn_type=trn_type, trn_platform=trn_platform)
+                    else:
+                        return jsonify({'error': 'Transaction not found'}), 404
+                else:
+                    return jsonify({'error': 'Database connection lost'}), 500
+            except mysql.connector.Error as e:
+                print(f"Database error: {e}")
+                return jsonify({'error': 'Database error'}), 500
     else:
         return jsonify({'error': 'Unauthorized'}), 401
 

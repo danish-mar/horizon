@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction : {{ desc }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #f8f9fa;
+        }
+        .card {
+            background-color: #333;
+            border-radius: 20px;
+            width: 350px;
+            color: #f8f9fa;
+        }
+        .amount {
+            font-size: 3em;
+            color: #ffc0cb; /* Pink color */
+        }
+        .sent-to, .recipient, .date-time, .transaction-details {
+            font-size: 1.2em;
+        }
+        .recipient {
+            font-size: 1.5em;
+            color: #ffc0cb; /* Pink color */
+        }
+        .date-time {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        .transaction-details {
+            background-color: #555;
+            border-radius: 10px;
+            padding: 10px;
+            color: #ddd;
+            font-size: 0.9em;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card text-center p-4 shadow-lg">
+        <h1 class="amount" id="amount">{{ amount }} $</h1>
+        <p class="sent-to" id="action">{{ 'Sent To' if trn_type == 'debit' else 'Received From' }}</p>
+        <h2 class="recipient" id="recipient">{{ sender_name if trn_type == 'credit' else receiver_name }}</h2>
+        <p class="date-time" id="at">{{ created_at }}</p>
+        <div class="transaction-details mt-4">
+            <p id="trn-id"><i class="fa-solid fa-receipt"></i><b> Transaction ID:</b> {{ transaction_id }}</p>
+            <p id="desc"><i class="fa-solid fa-info-circle"></i><b> Description:</b> {{ desc }}</p>
+            <p id="ass-acc-name-acc">{% if trn_type == 'debit' %}<i class="fa-solid fa-arrow-up"></i> <b>From:</b> {{ sender_name }}{% else %}<i class="fa-solid fa-arrow-down"></i> <b>To:</b> {{ receiver_name }}{% endif %}</p>
+            <p id="platform"><i class="fa-solid fa-laptop"></i> <b>Platform:</b> {{ trn_platform }}</p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+<script>
+    // Ensure you have valid values for these variables from the templating engine
+    let trn_id = "{{ transaction_id }}";
+    let amount = "{{ amount }}";
+    let sender_account_name = "{{ sender_name }}";
+    let receiver_account_name = "{{ receiver_name }}";
+    let created_at = "{{ created_at }}";
+    let desc = "{{ desc }}";
+    let trn_type = "{{ trn_type }}";
+    let from_account = "{{ from_account }}";
+    let to_account = "{{ to_account }}";
+    let platform = "{{ platform }}";
+</script>
+</body>
+</html>
