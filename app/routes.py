@@ -219,7 +219,7 @@ def get_related_transaction(transaction_id):
                         trn_type = result['transaction_type']
                         trn_platform = "\n"+result['platform']
 
-                        return render_template("account/transaction.html", transaction_id=trn_id, amount=amount, sender_name=sender_name, receiver_name=reciever_name, created_at_date=trn_created_at, desc=description, from_account=sender_account_number, to_account=receiver_account_number, trn_type=trn_type, trn_platform=trn_platform)
+                        return render_template("account/transaction.html", transaction_id=trn_id, amount=amount, sender_name=sender_name, receiver_name=reciever_name, created_at=trn_created_at, desc=description, from_account=sender_account_number, to_account=receiver_account_number, trn_type=trn_type, trn_platform=trn_platform)
                     else:
                         return jsonify({'error': 'Transaction not found'}), 404
                 else:
