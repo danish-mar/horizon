@@ -1,25 +1,37 @@
 version: '3.8'
 
 services:
-  horizon_server:
-    container_name: horizon_server
-    image: python:3.8-alpine
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: >
-      sh -c "apk add --no-cache git bash python3 && \
-             if [ -d 'horizon' ]; then cd horizon && git pull && cd ..; else git clone https://github.com/danish-mar/horizon.git; fi && \
-             cd horizon && \
-             python -m venv .venv && \
-             source .venv/bin/activate && \
-             pip install -r requirements.txt && \
-             export FLASK_ENV=alphatesting && \
-             flask run --host=0.0.0.0"
+#  horizon_server:
+#    container_name: horizon_server
+#    image: python:3.8-alpine
+#    volumes:
+#      - .:/app
+#    working_dir: /app
+#    command: >
+#      sh -c "apk add  git bash python3 curl tzdata && \
+#             cp /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && \
+#             if [ -d 'horizon' ]; then cd horizon && git pull && cd ..; else git clone https://github.com/danish-mar/horizon.git; fi && \
+#             cd horizon && \
+#             python -m venv .venv && \
+#             source .venv/bin/activate && \
+#             pip install -r requirements.txt && \
+#             export FLASK_ENV=alphatesting && \
+#             flask run --host=0.0.0.0"
+#
+#    ports:
+#      - "5000:5000"
+#    depends_on:
+#      - nebula_server
+#      - shinobi
+
+  shinobi:
+    container_name: shonobi
+    image: redis
+    restart: always
     ports:
-      - "5000:5000"
-    depends_on:
-      - nebula_server
+      - "6379:6379"
+    volumes:
+      - /docker/shinobi:/data
 
   nebula_server:
     container_name: nebula_server
@@ -27,8 +39,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: nahida@dendro123
       MYSQL_DATABASE: nebula
-      MYSQL_USER: root
-      MYSQL_PASSWORD: nahida@dendro123
+      TZ: Asia/Kolkata
+
     ports:
       - "3306:3306"
     volumes:

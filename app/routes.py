@@ -6,6 +6,7 @@ from .horizon.Security.auth_util import generate_auth_key
 import mysql.connector
 import os
 from .horizon.Utils.db_utils import *
+from .horizon.shinobi.publisher import publish_notification
 
 main = Blueprint('main', __name__)
 
@@ -101,7 +102,7 @@ def create_account():
         initial_balance = 0.00
 
         # Current timestamp
-        created_at = datetime.now()
+        created_at = datetime.datetime.now()
 
         # Create the new user in the database
         db = get_db()
@@ -215,11 +216,15 @@ def get_related_transaction(transaction_id):
                         reciever_name = receiver_account_first_name + " " + receiver_account_last_name
 
                         trn_created_at = result['created_at']
-                        description = "\n"+result['description']
+                        description = "\n" + result['description']
                         trn_type = result['transaction_type']
-                        trn_platform = "\n"+result['platform']
+                        trn_platform = "\n" + result['platform']
 
-                        return render_template("account/transaction.html", transaction_id=trn_id, amount=amount, sender_name=sender_name, receiver_name=reciever_name, created_at=trn_created_at, desc=description, from_account=sender_account_number, to_account=receiver_account_number, trn_type=trn_type, trn_platform=trn_platform)
+                        return render_template("account/transaction.html", transaction_id=trn_id, amount=amount,
+                                               sender_name=sender_name, receiver_name=reciever_name,
+                                               created_at=trn_created_at, desc=description,
+                                               from_account=sender_account_number, to_account=receiver_account_number,
+                                               trn_type=trn_type, trn_platform=trn_platform)
                     else:
                         return jsonify({'error': 'Transaction not found'}), 404
                 else:
@@ -391,8 +396,16 @@ def init_transaction():
 
                 debit_account(initiater_account_details['account_number'], reciever_account_number, amount_to_be_sent,
                               description, platform_enum)
+
+                publish_notification(account_number=initiater_account_details['account_number'], title="Money Debited",
+                                     message=f"Ypur Account {initiater_account_details['account_number']} has been debited by ${amount_to_be_sent}")
+
                 credit_account(reciever_account_number, initiater_account_details['account_number'], amount_to_be_sent,
                                description, platform_enum)
+
+                publish_notification(reciever_account_number, "Money Credited",
+                                     message=f"Your account {reciever_account_number} has been credited by ${amount_to_be_sent}")
+
                 # creates a new transaction to update on the transaction database
                 print("--- Updating blockchain on the database server")
                 # create's the debit transaction

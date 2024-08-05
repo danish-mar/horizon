@@ -6,7 +6,7 @@ class Config:
     DEBUG = False
 
 class AlphaTestingConfig(Config):
-    SERVER = 'cute.denizuh.com'
+    SERVER = '127.0.0.1'
     DATABASE = 'nebula'
     DATABASE_CONNECTOR = 'mysql'
     USERNAME = 'root'
