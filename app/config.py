@@ -20,14 +20,22 @@ class AlphaTestingConfig(Config):
     REDIS_DB = 0
 
 
-class RedisConfig:
-    REDIS_HOST = AlphaTestingConfig.REDIS_HOST
-    REDIS_PORT = AlphaTestingConfig.REDIS_PORT
-    REDIS_PASSWORD = AlphaTestingConfig.REDIS_PASSWORD
-    REDIS_DB = AlphaTestingConfig.REDIS_DB
+class DockerConfig(Config):
+    SERVER = 'nebula_server'
+    DATABASE = 'nebula'
+    DATABASE_CONNECTOR = 'mysql'
+    USERNAME = 'root'
+    PASSWORD = 'nahida@dendro123'
+    DEBUG = True
+    REDIS_HOST = 'shinobu'
+    REDIS_PORT = 6379
+    REDIS_PASSWORD = 'nya@123'
+    REDIS_DB = 0
+
 
 
 config = {
     'alphatesting': AlphaTestingConfig,
+    'dockerconfig': DockerConfig,
     'default': AlphaTestingConfig
 }
