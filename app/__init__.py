@@ -5,9 +5,14 @@ from .config import config
 from .routes import main
 from .db import close_db
 
-def create_app(config_name='alphatesting'):
+def create_app(config_name='dockerconfig'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+
+    if app.config['ENV'] == 'dockerconfig':
+        print("using docker config")
+    else:
+        print("using local config")
 
     # Initialize any extensions (e.g., SQLAlchemy)
 

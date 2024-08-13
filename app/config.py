@@ -7,6 +7,7 @@ class Config:
     DEBUG = False
 
 class AlphaTestingConfig(Config):
+    ENV = 'alphatestingconfig'
     SERVER = '127.0.0.1'
     DATABASE = 'nebula'
     DATABASE_CONNECTOR = 'mysql'
@@ -21,6 +22,7 @@ class AlphaTestingConfig(Config):
 
 
 class DockerConfig(Config):
+    ENV = 'dockerconfig'
     SERVER = 'nebula_server'
     DATABASE = 'nebula'
     DATABASE_CONNECTOR = 'mysql'
