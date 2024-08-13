@@ -523,6 +523,10 @@ def render_npi_page():
     return render_template('pages/nyamo/coming_soon.html', video_wallpaper=wallpaper)
 
 
+# @main.route('/npi/auth', methods=['POST'])
+# def auth_npi_client():
+
+
 # landing page
 
 @main.route('/', methods=['GET'])
@@ -603,3 +607,5 @@ def get_video_filename_due_time():
         return 'genshin_dusk_trimmed.mp4'
     else:
         return 'genshin_night_trimmed.mp4'
+
+

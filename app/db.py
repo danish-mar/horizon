@@ -1,3 +1,4 @@
+import redis
 from flask import current_app
 # # app/db.py
 # from flask import current_app, g
@@ -33,3 +34,18 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
+
+def get_redis():
+    if 'redis' not in g:
+        g.redis = redis.Redis(
+            host=current_app.config['REDIS_HOST'],
+            password=current_app.config['REDIS_PASSWORD'],
+            port=current_app.config['REDIS_PORT'],
+            db=current_app.config['REDIS_DB']
+        )
+    return g.redis
+
+def close_redis(e=None):
+    redis_client = g.pop('redis', None)
+    if redis_client is not None:
+        redis_client.close()
