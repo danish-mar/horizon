@@ -8,7 +8,7 @@ services:
       - .:/app
     working_dir: /app
     command: >
-      sh -c "apk add  git bash python3 curl tzdata && \
+      sh -c "apk add  git bash python3 curl tzdata pkgconfig mysql-dev && \
              cp /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && \
              if [ -d 'horizon' ]; then cd horizon && git pull && cd ..; else git clone -b npi https://github.com/danish-mar/horizon.git; fi && \
              cd horizon && \
@@ -25,7 +25,7 @@ services:
       - shinobi
 
   shinobi:
-    container_name: shonobi
+    container_name: shinobi
     image: redis
     restart: always
     ports:

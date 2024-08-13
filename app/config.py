@@ -27,7 +27,7 @@ class DockerConfig(Config):
     USERNAME = 'root'
     PASSWORD = 'nahida@dendro123'
     DEBUG = True
-    REDIS_HOST = 'shinobu'
+    REDIS_HOST = 'shinobi'
     REDIS_PORT = 6379
     REDIS_PASSWORD = 'nya@123'
     REDIS_DB = 0
