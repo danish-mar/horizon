@@ -8,9 +8,9 @@ services:
       - .:/app
     working_dir: /app
     command: >
-      sh -c "apk add  git bash python3 curl tzdata pkgconfig mysql-dev && \
+      sh -c "apk add  git bash python3 curl tzdata build-base pkgconf mysql-client mysql-dev && \
              cp /usr/share/zoneinfo/Asia/Kolkata /etc/localtime && \
-             if [ -d 'horizon' ]; then cd horizon && git pull && cd ..; else git clone -b npi https://github.com/danish-mar/horizon.git; fi && \
+             if [ -d 'horizon' ]; then rm horizon; else git clone -b npi https://github.com/danish-mar/horizon.git; fi && \
              cd horizon && \
              python -m venv .venv && \
              source .venv/bin/activate && \
